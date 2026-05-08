@@ -1,0 +1,12 @@
+{
+  "supplements": [
+    {
+      "slug": "sane-magical-prices",
+      "title": "Sane Magical Prices",
+      "kind": "rules-supplement",
+      "summary": "sane-magical-prices/_summary.md",
+      "index": "sane-magical-prices/_index.md",
+      "added": "2026-05-08"
+    }
+  ]
+}
