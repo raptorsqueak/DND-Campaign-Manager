@@ -37,7 +37,7 @@ Ask one at a time:
 
 ## Step 2: Check for Name Collision
 
-Before writing, check if `DNDCampaign/campaigns/{campaign-slug}/npcs/` already contains a file matching this NPC's name slug.
+Before writing, check if `DND-Campaign-Manager/campaigns/{campaign-slug}/npcs/` already contains a file matching this NPC's name slug.
 
 If a collision exists, ask: "An NPC named {name} already exists. Options: (1) View existing file, (2) Overwrite, (3) Use a different filename"
 
@@ -47,7 +47,7 @@ If a collision exists, ask: "An NPC named {name} already exists. Options: (1) Vi
 
 Derive filename: lowercase NPC name, replace spaces with hyphens, remove special characters. Example: "Brother Aldric" → `brother-aldric.md`.
 
-Write to `DNDCampaign/campaigns/{campaign-slug}/npcs/{filename}.md`:
+Write to `DND-Campaign-Manager/campaigns/{campaign-slug}/npcs/{filename}.md`:
 
 ```markdown
 # {NPC Name}

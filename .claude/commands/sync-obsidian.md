@@ -14,11 +14,11 @@ Extract `{campaign-slug}`.
 
 Read the following:
 
-1. `DNDCampaign/campaigns/{campaign-slug}/campaign.json` — extract `obsidian_vault`, `name`, and `current_session`
-2. All files in `DNDCampaign/campaigns/{campaign-slug}/players/` — character name, equipment, companion, stats
-3. All files in `DNDCampaign/campaigns/{campaign-slug}/npcs/` — NPC name, role, location, standing, personality, DM notes
-4. `DNDCampaign/campaigns/{campaign-slug}/session-log.md` — extract each `## Session {n}` block with its real-world date
-5. All `.md` files in `DNDCampaign/campaigns/{campaign-slug}/supplements/` — identify session plan files (any with a `YYYY-MM-DD` prefix in the filename); store their `{date}` and `{title}` for Step 3c
+1. `DND-Campaign-Manager/campaigns/{campaign-slug}/campaign.json` — extract `obsidian_vault`, `name`, and `current_session`
+2. All files in `DND-Campaign-Manager/campaigns/{campaign-slug}/players/` — character name, equipment, companion, stats
+3. All files in `DND-Campaign-Manager/campaigns/{campaign-slug}/npcs/` — NPC name, role, location, standing, personality, DM notes
+4. `DND-Campaign-Manager/campaigns/{campaign-slug}/session-log.md` — extract each `## Session {n}` block with its real-world date
+5. All `.md` files in `DND-Campaign-Manager/campaigns/{campaign-slug}/supplements/` — identify session plan files (any with a `YYYY-MM-DD` prefix in the filename); store their `{date}` and `{title}` for Step 3c
 
 If `obsidian_vault` is not set or is empty in campaign.json, stop and say: "No Obsidian vault configured for this campaign. Add an `obsidian_vault` path to campaign.json first (via /campaign-info)."
 
@@ -28,13 +28,20 @@ Store `{vault}` = the obsidian_vault path.
 
 ## Step 2: Scan the Obsidian Vault
 
-List files in:
+Run a **single** `find` over all four target subtrees rather than separate `ls` calls per directory:
+
+```bash
+find "{vault}/Playable Characters" "{vault}/NPCs" "{vault}/Sessions" "{vault}/Items" -maxdepth 2 -type f -name '*.md' 2>/dev/null
+```
+
+The `2>/dev/null` suppresses errors for directories that don't exist (those simply contribute zero results). Partition the returned paths by their top-level subtree:
+
 - `{vault}/Playable Characters/` — one file per PC/companion
-- `{vault}/NPCs/` and all subdirectories — one file per NPC, organized by location
-- `{vault}/Campaign/` — session prep notes, filenames begin with YYYY-MM-DD
+- `{vault}/NPCs/` and all subdirectories — one file per NPC, organized by location (NPCs need depth 2 for location subdirectories — the `-maxdepth 2` above covers this)
+- `{vault}/Sessions/` — session prep notes, filenames begin with YYYY-MM-DD
 - `{vault}/Items/` — one file per item
 
-If any directory does not exist, note it and skip that category during the scan.
+If a subtree yielded zero results AND the directory itself is missing, note it and skip that category during the rest of the command. Do **not** issue separate per-directory `ls` calls — one `find` replaces all four.
 
 ---
 
@@ -71,7 +78,7 @@ Also identify NPCs that are in the vault but NOT in the project — mark these *
 
 For each `.md` file in `campaigns/{slug}/supplements/` whose filename begins with a `YYYY-MM-DD` prefix:
 - Extract `{date}` and `{title}` from the filename
-- Check if `{vault}/Campaign/` has any file whose filename starts with `{date}`
+- Check if `{vault}/Sessions/` has any file whose filename starts with `{date}`
 - Classify:
   - **✓ Covered** — a Campaign vault note exists with that date prefix
   - **+ Missing** — no Campaign vault note for that date
@@ -79,7 +86,7 @@ For each `.md` file in `campaigns/{slug}/supplements/` whose filename begins wit
 ### 3d: Campaign Notes
 
 Parse `session-log.md` for each `## Session {n}` block — extract the real-world date (format: `YYYY-MM-DD`).
-List `{vault}/Campaign/` files and parse dates from filenames (YYYY-MM-DD prefix).
+List `{vault}/Sessions/` files and parse dates from filenames (YYYY-MM-DD prefix).
 For each session:
 - **✓ Covered** — a Campaign vault note exists whose filename starts with that date
 - **+ Missing** — no vault note for that date
@@ -110,7 +117,7 @@ NPCS ({count} in project, {count} in vault)
     ...
 
 SESSION PLANS ({count} in supplements)
-  ✓ {date} {title} — Campaign/{vault filename}
+  ✓ {date} {title} — Sessions/{vault filename}
   + {date} {title} — no vault note
   ...
 
@@ -299,10 +306,10 @@ If **yes**:
 
 ### Part A — Campaign summary note (Before/During/After)
 
-- Check that `{vault}/Campaign/{date} {title}.md` does not already exist — if it does, warn and skip Part A.
+- Check that `{vault}/Sessions/{date} {title}.md` does not already exist — if it does, warn and skip Part A.
 - Read the plan file.
 - From the plan's Opening Scene, Acts, and DM Eyes Only sections, generate condensed bullet points for the `# Before` section — key beats, encounter reminders, NPC notes, DM secrets. Keep each bullet brief; this is a table reference, not a narrative.
-- Write `{vault}/Campaign/{date} {title}.md`:
+- Write `{vault}/Sessions/{date} {title}.md`:
 
 ```markdown
 # Before
@@ -313,7 +320,7 @@ If **yes**:
 # After
 ```
 
-- Confirm: `"Created: Campaign/{date} {title}.md"`
+- Confirm: `"Created: Sessions/{date} {title}.md"`
 
 ### Part B — Full plan in DM-selected folder
 
@@ -353,8 +360,8 @@ If **yes**:
 - Ask: `"Short title for this session? (e.g., 'Heading to Yartar', or press Enter to use the session location)"`
   - If the user presses Enter or gives a blank response, derive the title from the session's **Location** field in the log.
 - Derive filename: `{date} {title}.md`
-- Check that this file does NOT already exist in `{vault}/Campaign/` — if it does, skip with a warning.
-- Write `{vault}/Campaign/{filename}`:
+- Check that this file does NOT already exist in `{vault}/Sessions/` — if it does, skip with a warning.
+- Write `{vault}/Sessions/{filename}`:
 
 ```markdown
 # Before
@@ -367,7 +374,7 @@ If **yes**:
 
 The `# After` section is pre-populated from the session log. `# Before` and `# During` are left blank for the DM to fill in.
 
-Confirm: `"Created: Campaign/{filename}"`
+Confirm: `"Created: Sessions/{filename}"`
 
 If **no**: skip this session.
 If **skip remaining**: stop processing campaign notes.

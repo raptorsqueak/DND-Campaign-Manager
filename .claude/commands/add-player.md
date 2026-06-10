@@ -13,8 +13,8 @@ Extract `{campaign-slug}`.
 ## Step 1: Load Reference Context
 
 Read:
-- `DNDCampaign/campaigns/{campaign-slug}/campaign.json` (to know party_level and setting)
-- `DNDCampaign/supplements/character-sheets.md` (PC schema and stat calculation reference)
+- `DND-Campaign-Manager/campaigns/{campaign-slug}/campaign.json` (to know party_level and setting)
+- `DND-Campaign-Manager/supplements/character-sheets.md` (PC schema and stat calculation reference)
 
 ---
 
@@ -79,7 +79,7 @@ After confirmation, derive the filename: lowercase character name, replace space
 
 If a file with that name already exists in `players/`, ask: "A character named {name} already exists. Overwrite, or use a different filename?"
 
-Write to `DNDCampaign/campaigns/{campaign-slug}/players/{filename}.md` using this schema:
+Write to `DND-Campaign-Manager/campaigns/{campaign-slug}/players/{filename}.md` using this schema:
 
 ```markdown
 # {Character Name}

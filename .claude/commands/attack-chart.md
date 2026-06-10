@@ -32,7 +32,7 @@ Wait for their response before continuing.
 
 ## Step 3: Load Player & Companion Data
 
-Read all `.md` files in `DNDCampaign/campaigns/{campaign-slug}/players/`. For each file, extract:
+Read all `.md` files in `DND-Campaign-Manager/campaigns/{campaign-slug}/players/`. For each file, extract:
 
 - **Name** — the character name from the `#` heading or filename (use `[[Name]]` wikilink format in the table)
 - **AC** — look for AC in the Combat / Combat Stats section; if not found, use `—`
@@ -51,8 +51,8 @@ List players in alphabetical order by character name.
 
 For each enemy, check in this order:
 
-1. `DNDCampaign/campaigns/{campaign-slug}/npcs/` — read the file if it exists; extract AC, hit dice, DEX modifier, and attack bonus
-2. `DNDCampaign/campaigns/{campaign-slug}/supplements/` and `DNDCampaign/supplements/` — for any homebrew stat blocks
+1. `DND-Campaign-Manager/campaigns/{campaign-slug}/npcs/` — read the file if it exists; extract AC, hit dice, DEX modifier, and attack bonus
+2. `DND-Campaign-Manager/campaigns/{campaign-slug}/supplements/` and `DND-Campaign-Manager/supplements/` — for any homebrew stat blocks
 3. Built-in 5e SRD knowledge — use the standard stat block for the creature type
 
 Extract for each enemy:
@@ -108,5 +108,5 @@ Order: all entries from the players directory first (alphabetical), then a blank
 **If file**:
 - Derive the filename from the enemy list: lowercase each entry, replace spaces with hyphens, join entries with hyphens, append `-attack-chart.md`.
   - Example: "1 knight, 8 guards" → `1-knight-8-guards-attack-chart.md`
-- Write the table to `DNDCampaign/campaigns/{campaign-slug}/{filename}` — the file contains only the table, no extra text.
+- Write the table to `DND-Campaign-Manager/campaigns/{campaign-slug}/{filename}` — the file contains only the table, no extra text.
 - Confirm: "Table written to `campaigns/{campaign-slug}/{filename}`"

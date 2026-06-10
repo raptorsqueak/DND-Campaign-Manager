@@ -10,21 +10,29 @@ Extract `{campaign-slug}`.
 
 ---
 
-## Step 1: Load Full Campaign Context
+## Step 1: Load Campaign Context
 
 Read in this order:
 
-1. `DNDCampaign/campaigns/{campaign-slug}/campaign.json`
-2. `DNDCampaign/campaigns/{campaign-slug}/session-log.md` (last 30 lines for current situation)
-3. All files in `DNDCampaign/campaigns/{campaign-slug}/npcs/` (to avoid name and role duplication)
-4. All files in `DNDCampaign/campaigns/{campaign-slug}/players/` (for backstory connection opportunities)
-5. All `.md` files in `DNDCampaign/campaigns/{campaign-slug}/supplements/`
-6. All `.md` files in `DNDCampaign/supplements/`
-7. `DNDCampaign/supplements/npc-generation.md`
+1. `DND-Campaign-Manager/campaigns/{campaign-slug}/campaign.json` — for `current_location`, `book`, party level
+2. `DND-Campaign-Manager/campaigns/{campaign-slug}/session-log.md` (last 30 lines for current situation)
+3. All files in `DND-Campaign-Manager/campaigns/{campaign-slug}/npcs/` (to avoid name and role duplication)
+4. All files in `DND-Campaign-Manager/campaigns/{campaign-slug}/players/` (for backstory connection opportunities)
+5. **Supplements (manifest-first)** — read both manifests:
+   - `DND-Campaign-Manager/supplements/_manifest.json`
+   - `DND-Campaign-Manager/campaigns/{campaign-slug}/supplements/_manifest.json`
 
-Then check `campaign.json → book` and load the matching adventure book file if known:
-- "Storm King's Thunder" → `DNDCampaign/campaigns/{campaign-slug}/supplements/storm-kings-thunder.md`
-- "Waterdeep: Dungeon of the Mad Mage" or "Dungeon of the Mad Mage" → `DNDCampaign/campaigns/{campaign-slug}/supplements/dungeon-of-the-mad-mage.md`
+   Always-load in full:
+   - The `npc-generation` flat entry (canonical NPC framework — required for stat-block guidance).
+   - All flat `kind: character-backstory` entries (e.g., the campaign backstory — informs name conventions, factions, recurring themes).
+   - Any flat `kind: homebrew-mechanic` entries (so the new NPC can interact with homebrew if relevant).
+
+   For wrapped `kind: adventure-book` entries:
+   - Read each `_index.md`.
+   - From the index's **NPCs** section, gather all canon names so the generated NPC's name can avoid collisions.
+   - If the active book covers the party's `current_location`, locate the matching chapter in the index and load that chapter file (for tone, regional flavor, faction context). Don't load other chapters.
+
+This avoids loading 17,000+ lines of an adventure book to generate one NPC. The index alone is enough for name-collision checks; the active chapter gives setting flavor.
 
 ---
 

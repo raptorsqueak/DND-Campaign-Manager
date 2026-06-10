@@ -18,7 +18,7 @@ If the command was invoked with no question, ask: "What's your D&D question?"
 
 ## Step 2: Load Topic-Relevant SRD Files
 
-Determine the topic from the question, then load the most relevant SRD markdown file(s) from `DNDCampaign/supplements/srd/`:
+Determine the topic from the question, then load the most relevant SRD markdown file(s) from `DND-Campaign-Manager/supplements/srd/`:
 
 | Topic Keywords | Files to Load |
 |---|---|
@@ -41,33 +41,40 @@ If the question is broad or doesn't match a specific topic, load `06 mechanics.m
 
 ---
 
-## Step 3: Always Load DM Instructions
+## Step 3: Load Supplements (Manifest-First)
 
-Always also read all six DM instruction files:
-- `DNDCampaign/supplements/combat-rules.md`
-- `DNDCampaign/supplements/spellcasting.md`
-- `DNDCampaign/supplements/items-and-loot.md`
-- `DNDCampaign/supplements/character-sheets.md`
-- `DNDCampaign/supplements/npc-generation.md`
-- `DNDCampaign/supplements/campaign-generation.md`
+For each scope (always include global; include campaign if active campaign is set):
+
+| Scope | Manifest path |
+|---|---|
+| Global | `DND-Campaign-Manager/supplements/_manifest.json` |
+| Campaign | `DND-Campaign-Manager/campaigns/{campaign-slug}/supplements/_manifest.json` |
+
+For each manifest:
+
+1. **Read the manifest**. If it doesn't exist, fall back to: read all top-level `.md` files in that scope's supplements directory (legacy mode).
+2. **Read summaries first**:
+   - **Flat entry** (has `content_file`): the entry's `summary_text` field IS the summary — already loaded with the manifest.
+   - **Wrapped entry** (has `summary`, `index`): read the `_summary.md` file referenced.
+3. **Decide which supplements are relevant** to this question:
+   - **Always-load** (any rules question): every flat `kind: rules-supplement` (combat, spellcasting, items-and-loot, character-sheets, npc-generation, campaign-generation, etc.) — these are house rules / homebrew that override RAW.
+   - **Topical match** for any other supplement whose `summary_text` / `_summary.md` mentions keywords from the question.
+   - **Campaign-relevance** (if active campaign): every `kind: character-backstory` and `kind: homebrew-mechanic` entry — these are campaign-specific context that affects rulings.
+4. **For wrapped entries judged relevant**: read the `_index.md`. From the index, identify the specific content file(s) (chapter, section, NPC entry) most relevant to the question. Load **only those files**, not the whole supplement.
+5. **For flat entries judged relevant**: read the full `content_file`.
+
+This avoids loading 16,000+ lines of an adventure book to answer "what's the AC of plate?". A rules question about plate triggers global flat-supplement loads (a few hundred lines) plus the SRD equipment file — not the campaign book.
 
 ---
 
-## Step 4: Load Campaign Context (if active campaign found)
+## Step 4: Load Campaign-Specific Files (if active campaign found)
 
-If an active campaign is set:
+Also load:
 
-1. Read all `.md` files in `DNDCampaign/supplements/` (global supplements — house rules, homebrew)
-2. Read all `.md` files in `DNDCampaign/campaigns/{campaign-slug}/supplements/` (campaign-specific supplements)
-3. Read `DNDCampaign/campaigns/{campaign-slug}/campaign.json`
-
-If the question references a specific player by name, read their file from `DNDCampaign/campaigns/{campaign-slug}/players/`.
-
-If the question references an NPC by name, read their file from `DNDCampaign/campaigns/{campaign-slug}/npcs/`.
-
-Check `campaign.json → book` and load the matching book file if applicable:
-- "Storm King's Thunder" → `DNDCampaign/campaigns/{campaign-slug}/supplements/storm-kings-thunder.md`
-- "Waterdeep: Dungeon of the Mad Mage" or "Dungeon of the Mad Mage" → `DNDCampaign/campaigns/{campaign-slug}/supplements/dungeon-of-the-mad-mage.md`
+1. `DND-Campaign-Manager/campaigns/{campaign-slug}/campaign.json`
+2. If the question references a specific player by name, read their file from `players/`.
+3. If the question references an NPC by name, read their file from `npcs/`.
+4. If the question references a location, NPC, or quest from the active book, the wrapped-entry index in Step 3 should have surfaced the right chapter file already — load it.
 
 ---
 

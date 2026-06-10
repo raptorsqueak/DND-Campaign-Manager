@@ -6,9 +6,9 @@ This command starts or resumes a D&D 5e campaign management session.
 
 ## Step 1: Scan for Existing Campaigns
 
-Use the Read tool (or Bash `ls`) to list all subdirectories inside `DNDCampaign/campaigns/`. For each directory found, read its `campaign.json` and extract: name, book, current_session, party_level, last_session.
+Use the Read tool (or Bash `ls`) to list all subdirectories inside `DND-Campaign-Manager/campaigns/`. For each directory found, read its `campaign.json` and extract: name, book, current_session, party_level, last_session.
 
-If `DNDCampaign/campaigns/` does not exist or is empty, skip directly to **Create New Campaign**.
+If `DND-Campaign-Manager/campaigns/` does not exist or is empty, skip directly to **Create New Campaign**.
 
 If campaigns are found, present a numbered list:
 
@@ -35,12 +35,18 @@ Wait for user input.
 
 ## Resume Existing Campaign
 
-1. Read `DNDCampaign/campaigns/{slug}/campaign.json`
-2. Read all files in `DNDCampaign/campaigns/{slug}/players/` — extract name, race, class, level for each
-3. Count files in `DNDCampaign/campaigns/{slug}/npcs/`
-4. Read the last 20 lines of `DNDCampaign/campaigns/{slug}/session-log.md` for recent context
-5. Read all `.md` files in `DNDCampaign/supplements/` (global supplements)
-6. Read all `.md` files in `DNDCampaign/campaigns/{slug}/supplements/` (campaign supplements)
+1. Read `DND-Campaign-Manager/campaigns/{slug}/campaign.json`
+2. Read all files in `DND-Campaign-Manager/campaigns/{slug}/players/` — extract name, race, class, level for each
+3. Count files in `DND-Campaign-Manager/campaigns/{slug}/npcs/`
+4. Read the last 20 lines of `DND-Campaign-Manager/campaigns/{slug}/session-log.md` for recent context
+5. **Supplement manifests** (don't load full content — just the manifest summaries):
+   - `DND-Campaign-Manager/supplements/_manifest.json` (global)
+   - `DND-Campaign-Manager/campaigns/{slug}/supplements/_manifest.json` (campaign)
+
+   Extract the list of supplements with their `slug`, `title`, `kind`, and one-line summary (`summary_text` for flat entries, first sentence of `_summary.md` for wrapped entries — read just enough of `_summary.md` to get the gist).
+
+   If a manifest doesn't exist, fall back to listing top-level `.md` filenames in the directory (legacy mode).
+6. Ensure the meta directory exists: `mkdir -p DND-Campaign-Manager/campaigns/{slug}/.meta/` (idempotent — used by the routing/audit/improvement system)
 
 Display a session briefing:
 
@@ -63,6 +69,14 @@ Active Quests:
   - {quest}
   - ...
 
+Supplements available:
+  Global ({n}):
+    - {slug} ({kind}) — {one-line summary}
+    - ...
+  Campaign ({n}):
+    - {slug} ({kind}) — {one-line summary}
+    - ...
+
 Custom Notes: {custom_notes}
 Obsidian Vault: {obsidian_vault if set, otherwise "(none linked)"}
 
@@ -79,7 +93,7 @@ End the response with this exact block (required — other commands depend on it
 ```
 ACTIVE CAMPAIGN: {campaign-slug}
 Campaign Name: {display name}
-Path: DNDCampaign/campaigns/{campaign-slug}/
+Path: DND-Campaign-Manager/campaigns/{campaign-slug}/
 ```
 
 ---
@@ -98,9 +112,9 @@ After collecting all answers:
 
 **Derive the slug**: lowercase the campaign name, replace spaces with hyphens, remove apostrophes and special characters. Example: "Curse of Strahd" → `curse-of-strahd`.
 
-**Check for collision**: if `DNDCampaign/campaigns/{slug}/` already exists, append `-2`, `-3`, etc.
+**Check for collision**: if `DND-Campaign-Manager/campaigns/{slug}/` already exists, append `-2`, `-3`, etc.
 
-**Write** `DNDCampaign/campaigns/{slug}/campaign.json`:
+**Write** `DND-Campaign-Manager/campaigns/{slug}/campaign.json`:
 ```json
 {
   "name": "{campaign name}",
@@ -121,11 +135,12 @@ After collecting all answers:
 ```
 
 **Create directories**:
-- `DNDCampaign/campaigns/{slug}/players/`
-- `DNDCampaign/campaigns/{slug}/npcs/`
-- `DNDCampaign/campaigns/{slug}/supplements/`
+- `DND-Campaign-Manager/campaigns/{slug}/players/`
+- `DND-Campaign-Manager/campaigns/{slug}/npcs/`
+- `DND-Campaign-Manager/campaigns/{slug}/supplements/`
+- `DND-Campaign-Manager/campaigns/{slug}/.meta/` (used by the routing/audit/improvement system; safe to leave empty initially)
 
-**Write** `DNDCampaign/campaigns/{slug}/session-log.md`:
+**Write** `DND-Campaign-Manager/campaigns/{slug}/session-log.md`:
 ```markdown
 # Session Log — {campaign name}
 ```
@@ -153,5 +168,5 @@ End with the required block:
 ```
 ACTIVE CAMPAIGN: {campaign-slug}
 Campaign Name: {display name}
-Path: DNDCampaign/campaigns/{campaign-slug}/
+Path: DND-Campaign-Manager/campaigns/{campaign-slug}/
 ```

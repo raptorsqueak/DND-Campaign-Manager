@@ -13,8 +13,8 @@ Extract `{campaign-slug}`.
 ## Step 1: Load Current State
 
 Read:
-- `DNDCampaign/campaigns/{campaign-slug}/campaign.json` (current session number, quests, location, level)
-- The last 30 lines of `DNDCampaign/campaigns/{campaign-slug}/session-log.md` (for continuity)
+- `DND-Campaign-Manager/campaigns/{campaign-slug}/campaign.json` (current session number, quests, location, level)
+- The last 30 lines of `DND-Campaign-Manager/campaigns/{campaign-slug}/session-log.md` (for continuity)
 
 The session being logged is session number `{current_session + 1}` (one beyond what's in campaign.json).
 
@@ -41,7 +41,7 @@ Ask one at a time:
 
 ## Step 3: Append Session Log Entry
 
-Append this block to `DNDCampaign/campaigns/{campaign-slug}/session-log.md`:
+Append this block to `DND-Campaign-Manager/campaigns/{campaign-slug}/session-log.md`:
 
 ```markdown
 
@@ -72,7 +72,7 @@ Append this block to `DNDCampaign/campaigns/{campaign-slug}/session-log.md`:
 
 ## Step 4: Update campaign.json
 
-Update the following fields in `DNDCampaign/campaigns/{campaign-slug}/campaign.json`:
+Update the following fields in `DND-Campaign-Manager/campaigns/{campaign-slug}/campaign.json`:
 
 - `current_session` → increment by 1 (set to {current_session + 1})
 - `last_session` → real-world date entered by user (YYYY-MM-DD format)
@@ -88,7 +88,7 @@ Update the following fields in `DNDCampaign/campaigns/{campaign-slug}/campaign.j
 Ask: "Would you like to update any player character sheets? (current HP, spell slots, inventory, level, notes) — yes or no"
 
 If **yes**:
-- List all players in `DNDCampaign/campaigns/{campaign-slug}/players/`
+- List all players in `DND-Campaign-Manager/campaigns/{campaign-slug}/players/`
 - Ask: "Which player(s) do you want to update? List names or 'all'."
 - For each selected player, ask what to update (HP, spell slots, equipment, session notes, level, features gained)
 - Apply changes to the relevant `.md` files, updating the `Last Updated` date and `Session Notes` section

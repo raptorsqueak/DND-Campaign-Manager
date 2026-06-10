@@ -178,3 +178,13 @@ Consider:
 - Same spell from different sources doesn't stack (most potent applies)
 - Different spells stack
 - Same spell at different levels: use higher level effect
+
+## Class Feature Rulings
+
+### Trickster's Transposition (Trickery Domain Cleric, Tasha's, Lv6)
+
+Bonus action — magically swap places with the duplicate created by Invoke Duplicity, provided the duplicate is within 120 ft and you can see it.
+
+**House rule:** Items the cleric is wearing or holding swap to the duplicate's location with them — including a held bag and its contents. **Creatures** carried in a held container (e.g., a mimic in a ring-box form) also transpose along, since the rules don't explicitly forbid it. Guiding principle: *works unless the book says it doesn't.*
+
+The duplicate is illusory, so there is nothing to "swap" from the duplicate's side — effectively the cleric+gear teleports to the duplicate's spot, and the duplicate flickers to the cleric's old spot.

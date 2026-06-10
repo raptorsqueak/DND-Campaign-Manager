@@ -14,16 +14,20 @@ Extract `{campaign-slug}`.
 
 Read all of the following before asking any questions:
 
-1. `DNDCampaign/campaigns/{campaign-slug}/campaign.json` — current state, location, quests, level, and `obsidian_vault` path (store this for use in Step 5)
-2. `DNDCampaign/campaigns/{campaign-slug}/session-log.md` — full log for history; focus on last 3 sessions for immediate context
-3. All files in `DNDCampaign/campaigns/{campaign-slug}/players/` — backstories, companions, hooks, equipment
-4. All files in `DNDCampaign/campaigns/{campaign-slug}/npcs/` — standing relationships, outstanding threads
-5. All `.md` files in `DNDCampaign/campaigns/{campaign-slug}/supplements/`
-6. All `.md` files in `DNDCampaign/supplements/`
+1. `DND-Campaign-Manager/campaigns/{campaign-slug}/campaign.json` — current state, location, quests, level, and `obsidian_vault` path (store this for use in Step 5)
+2. `DND-Campaign-Manager/campaigns/{campaign-slug}/session-log.md` — full log for history; focus on last 3 sessions for immediate context
+3. All files in `DND-Campaign-Manager/campaigns/{campaign-slug}/players/` — backstories, companions, hooks, equipment
+4. All files in `DND-Campaign-Manager/campaigns/{campaign-slug}/npcs/` — standing relationships, outstanding threads
+5. **Supplements (manifest-first)**:
+   - Read `DND-Campaign-Manager/campaigns/{campaign-slug}/supplements/_manifest.json` and `DND-Campaign-Manager/supplements/_manifest.json`. Fall back to "scan top-level *.md files" if a manifest is missing.
+   - Read every `summary_text` (flat entries) and every `_summary.md` (wrapped entries). These are cheap.
+   - Always-load in full:
+     - All flat `kind: rules-supplement` entries (DM instructions — combat-rules, spellcasting, items-and-loot, character-sheets, npc-generation, campaign-generation).
+     - All flat `kind: character-backstory` and `kind: homebrew-mechanic` entries (the party's backstory and homebrew items inform every plan).
+   - For wrapped `kind: adventure-book` entries (e.g., the active book): read `_index.md` to find chapter files matching the party's `current_location` from `campaign.json` and any chapters covering active quests. Load **only those chapter files**, not the whole book.
+6. **Supplement state** (per-book DM tracking): Read every `.md` file in `DND-Campaign-Manager/campaigns/{campaign-slug}/supplement-state/` (chapters completed, NPCs killed/modified, encounters skipped). The plan must respect what's already been used.
 
-Then load the relevant book file based on `campaign.json → book`:
-- "Storm King's Thunder" → `DNDCampaign/campaigns/{campaign-slug}/supplements/storm-kings-thunder.md`
-- "Dungeon of the Mad Mage" → `DNDCampaign/campaigns/{campaign-slug}/supplements/dungeon-of-the-mad-mage.md`
+The active book is determined by the campaign manifest entry whose summary text marks it as the campaign's primary book. The DM-state files name which book they track (filename matches the supplement slug).
 
 ---
 
@@ -136,7 +140,9 @@ Options:
   5. Done — looks good
 ```
 
-**If saving**: Ask "What date is this session? (YYYY-MM-DD)" and "What's a short title for this session? (e.g., 'Heading to Yartar')" — then write the plan to `DNDCampaign/campaigns/{campaign-slug}/supplements/{YYYY-MM-DD} {title}.md` and confirm: "Plan saved to supplements/{YYYY-MM-DD} {title}.md"
+**If saving**: Ask "What date is this session? (YYYY-MM-DD)" and "What's a short title for this session? (e.g., 'Heading to Yartar')" — then ensure `DND-Campaign-Manager/campaigns/{campaign-slug}/sessions/` exists and write the plan to `DND-Campaign-Manager/campaigns/{campaign-slug}/sessions/{YYYY-MM-DD} {title}.md`. Confirm: "Plan saved to sessions/{YYYY-MM-DD} {title}.md"
+
+(Plans are session-prep artifacts, not reference supplements — they live in `sessions/` alongside `session-log.md`, not in `supplements/`. The supplements directory is for reference content like adventure books and rules supplements.)
 
 **If expanding**: Produce the expanded section in full — stat blocks if combat, full NPC dialogue beats if roleplay, room descriptions if exploration.
 

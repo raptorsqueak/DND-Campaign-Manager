@@ -18,6 +18,8 @@ Ask:
 
 If an active campaign exists, default option 2 to that campaign. If no active campaign and the user picks 2, stop and say: "No active campaign. Run /start-campaign first or pick option 1 (global)."
 
+**Privacy check (global scope only):** `supplements/` is committed to GitHub, so global content must not carry campaign-private references (campaign name, PC/companion names, homebrew NPCs/items, absolute paths) — see CLAUDE.md → *Data Sensitivity & Privacy*. If the source for a **global** supplement contains such references (e.g. a house rule tagged with the campaign name), flag it and either genericize the reference or recommend filing it as **campaign-specific (option 2)** instead. Published reference-book material is fine.
+
 Set `{target-root}`:
 - Global → `DND-Campaign-Manager/supplements`
 - Campaign → `DND-Campaign-Manager/campaigns/{campaign-slug}/supplements`
@@ -74,9 +76,14 @@ Capture as `{slug}`.
 
 ## Step 4: Copy / Split
 
-Set `{dest-dir} = {target-root}/{slug}/`. Create it.
+Decide layout. There are **two manifest shapes** — pick one based on size and complexity:
 
-### If `kind == adventure-book`
+- **Wrapped layout** — used for: any `kind: adventure-book`, OR any source >300 lines that benefits from a topical index. Creates a directory `{target-root}/{slug}/` containing the content (split into chapters if a book, or a single `content.md` otherwise) plus `_summary.md` and `_index.md`. Continue with Steps 4–6 as written.
+- **Flat layout** — used for: small supplements (≤300 lines, single-topic, no internal index needed). Writes a single file `{target-root}/{slug}.md` and the manifest entry inlines a one-line summary. **Skip Steps 4 splitting, 5 (_summary.md), and 6 (_index.md). Go directly to Step 7 with the flat-shape entry.**
+
+If unsure, ask the user: "This source is {N} lines. Wrap in a directory with summary/index, or store as a flat file?"
+
+### If wrapped + `kind == adventure-book`
 
 Detect the chapter heading style. Scan the source for top-level headings matching, in priority order:
 1. `^# Chapter \d+`
@@ -91,11 +98,24 @@ If a pattern matches at least 2 sections, use it as the split point. Show the us
 > 2. Use a different heading level / pattern (specify)
 > 3. Don't split — store as a single `content.md`
 
-When splitting, write each chapter to `{dest-dir}/chapter-{NN}-{kebab-title}.md` (or `level-{NN}-...` / `part-{NN}-...` matching the detected pattern), where `NN` is zero-padded. Material before the first chapter heading goes into `chapter-00-front-matter.md` if non-trivial; otherwise discard the front matter and warn. Material after the last chapter (e.g., appendices) goes into `appendix-{letter-or-number}-{kebab-title}.md` if introduced by a clear `# Appendix X` heading; otherwise tack onto the previous chapter file.
+When splitting:
 
-### If `kind != adventure-book`
+- **Body chapters** → `{dest-dir}/chapter-{NN}-{kebab-title}.md` (or `level-{NN}-...` / `part-{NN}-...` matching the detected pattern). `NN` is zero-padded to two digits (`chapter-09-...md`, `level-23-...md`).
+- **Front matter** (everything before the first chapter heading) → `{dest-dir}/front-matter.md`. Always preserve if it contains any prose beyond a single `# Title` line — adventure books typically include Adventure Background, Running the Adventure, faction lore, etc., here. Only skip if the front matter is literally just the book title with nothing else; in that case, warn the user.
+- **Appendices** (sections introduced by `^# Appendix [A-Z0-9]`) → `{dest-dir}/appendix-{letter-or-number}-{kebab-title}.md` (lowercase letter — `appendix-a-linked-adventures.md`). Treated as their own split units, like chapters.
+- **Stray content between chapters and appendices** (rare) → tack onto the preceding chapter file.
+
+Within each split file, preserve the original heading hierarchy below `#` (so `##`, `###`, etc. stay intact). The split is at level-1 boundaries only.
+
+Slug the title from the heading after the colon: `# Chapter 3: The Savage Frontier` → `chapter-03-the-savage-frontier.md`. Lowercase, kebab-case, drop punctuation.
+
+### If wrapped + `kind != adventure-book`
 
 Write the entire source verbatim to `{dest-dir}/content.md`.
+
+### If flat layout
+
+Write the entire source verbatim to `{target-root}/{slug}.md` (no directory). Skip Steps 5 and 6.
 
 ---
 
@@ -129,8 +149,9 @@ The index is the **cheap-to-load entry point**. A consumer command reads `_summa
 
 Read `{target-root}/_manifest.json` if it exists; otherwise initialize it with `{"supplements": []}`.
 
-Append:
+Append an entry whose shape matches the layout chosen in Step 4:
 
+**Wrapped layout entry:**
 ```json
 {
   "slug": "{slug}",
@@ -141,6 +162,20 @@ Append:
   "added":   "{today's ISO date}"
 }
 ```
+
+**Flat layout entry:**
+```json
+{
+  "slug": "{slug}",
+  "title": "{title}",
+  "kind": "{kind}",
+  "content_file": "{slug}.md",
+  "summary_text": "{1–2 sentence inline summary — when to consult, what's in it}",
+  "added": "{today's ISO date}"
+}
+```
+
+For flat entries, `summary_text` plays the same role as `_summary.md` does in wrapped entries: it tells consumers when to consult this supplement. Keep it under ~200 characters when possible.
 
 If the slug already appears (the user chose "replace" earlier), update the existing entry in place rather than appending a duplicate.
 
@@ -263,22 +298,35 @@ Final confirmation: "Added: `{slug}` ({kind}) under `{target-root}` — {N} chap
 
 ### `_manifest.json` schema
 
+Two entry shapes are valid; pick based on layout chosen at intake:
+
+**Wrapped (large content with internal index):**
 ```json
 {
-  "supplements": [
-    {
-      "slug": "string (kebab-case, unique within this manifest)",
-      "title": "string (display title)",
-      "kind": "adventure-book | rules-supplement | lore | character-backstory | homebrew-mechanic",
-      "summary": "string (relative path from manifest dir, always ends in _summary.md)",
-      "index":   "string (relative path from manifest dir, always ends in _index.md)",
-      "added":   "string (ISO date YYYY-MM-DD)"
-    }
-  ]
+  "slug": "string (kebab-case, unique within this manifest)",
+  "title": "string (display title)",
+  "kind": "adventure-book | rules-supplement | lore | character-backstory | homebrew-mechanic",
+  "summary": "string (relative path from manifest dir, ends in _summary.md)",
+  "index":   "string (relative path from manifest dir, ends in _index.md)",
+  "added":   "string (ISO date YYYY-MM-DD)"
 }
 ```
 
-Sorted by `slug` ascending. Two-space indent. UTF-8.
+**Flat (small single-topic content):**
+```json
+{
+  "slug": "string (kebab-case, unique within this manifest)",
+  "title": "string (display title)",
+  "kind": "rules-supplement | lore | character-backstory | homebrew-mechanic",
+  "content_file": "string (relative path from manifest dir, ends in .md)",
+  "summary_text": "string (1–2 sentence inline summary, ~200 chars or less)",
+  "added": "string (ISO date YYYY-MM-DD)"
+}
+```
+
+A consumer command can detect the shape by checking for `content_file` (flat) vs `summary` (wrapped).
+
+Full file: `{ "supplements": [ ...entries... ] }`. Sorted by `slug` ascending. Two-space indent. UTF-8.
 
 ### `supplement-state/{slug}.md` template
 

@@ -13,11 +13,11 @@ Extract `{campaign-slug}`.
 ## Step 1: Load and Display Current Info
 
 Read:
-- `DNDCampaign/campaigns/{campaign-slug}/campaign.json`
-- List all files in `DNDCampaign/campaigns/{campaign-slug}/players/` — for each, extract character name, race, class, level from the file header
-- List all files in `DNDCampaign/campaigns/{campaign-slug}/npcs/` — count by Type field (Major NPC / Minor NPC / Recurring / One-Shot)
-- List filenames in `DNDCampaign/supplements/`
-- List filenames in `DNDCampaign/campaigns/{campaign-slug}/supplements/`
+- `DND-Campaign-Manager/campaigns/{campaign-slug}/campaign.json`
+- List all files in `DND-Campaign-Manager/campaigns/{campaign-slug}/players/` — for each, extract character name, race, class, level from the file header
+- List all files in `DND-Campaign-Manager/campaigns/{campaign-slug}/npcs/` — count by Type field (Major NPC / Minor NPC / Recurring / One-Shot)
+- List filenames in `DND-Campaign-Manager/supplements/`
+- List filenames in `DND-Campaign-Manager/campaigns/{campaign-slug}/supplements/`
 
 Display:
 
@@ -49,10 +49,10 @@ Custom Notes:
   {custom_notes or "(none)"}
 
 Global Supplements:
-  {list filenames or "(none — drop .md files into DNDCampaign/supplements/)"}
+  {list filenames or "(none — drop .md files into DND-Campaign-Manager/supplements/)"}
 
 Campaign Supplements:
-  {list filenames or "(none — drop .md files into DNDCampaign/campaigns/{slug}/supplements/)"}
+  {list filenames or "(none — drop .md files into DND-Campaign-Manager/campaigns/{slug}/supplements/)"}
 ```
 
 ---

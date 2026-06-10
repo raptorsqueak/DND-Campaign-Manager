@@ -1,1 +1,10 @@
+# Campaign-private data — never commit (see CLAUDE.md → Data Sensitivity & Privacy).
+# Holds campaign name, PCs, homebrew NPCs/items, vault paths, and runtime state.
 campaigns/*
+
+# Local Claude Code settings
+.claude/settings.local.json
+
+# Project runtime meta (improvement queue + friction notes) — may contain
+# absolute paths; keep out of the committed tree.
+.claude/.meta/

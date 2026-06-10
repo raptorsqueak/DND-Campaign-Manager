@@ -12,7 +12,7 @@ Extract `{campaign-slug}`.
 
 ## Step 1: Select a Player
 
-List all files in `DNDCampaign/campaigns/{campaign-slug}/players/`, with each file representing a player's information.
+List all files in `DND-Campaign-Manager/campaigns/{campaign-slug}/players/`, with each file representing a player's information.
 
 Display a numbered list of the available players, asking which player to update.
 

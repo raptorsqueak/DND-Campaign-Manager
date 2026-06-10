@@ -1,11 +1,59 @@
 {
   "supplements": [
     {
+      "slug": "campaign-generation",
+      "title": "Campaign Generation",
+      "kind": "rules-supplement",
+      "content_file": "campaign-generation.md",
+      "summary_text": "DM guidance for campaign setup: adventure-hook archetypes, structure templates, tone guidelines. Consult when starting or pitching a new campaign.",
+      "added": "2026-05-08"
+    },
+    {
+      "slug": "character-sheets",
+      "title": "Character Sheets & Creation",
+      "kind": "rules-supplement",
+      "content_file": "character-sheets.md",
+      "summary_text": "PC creation workflow: race/class/background selection, ability score generation, the project's character-sheet schema. Consult during /add-player or level-ups.",
+      "added": "2026-05-08"
+    },
+    {
+      "slug": "combat-rules",
+      "title": "Combat Rules",
+      "kind": "rules-supplement",
+      "content_file": "combat-rules.md",
+      "summary_text": "Initiative tracker format, action economy, conditions reference. Always consult during combat or for combat rules questions.",
+      "added": "2026-05-08"
+    },
+    {
+      "slug": "items-and-loot",
+      "title": "Items, Loot, and Treasure",
+      "kind": "rules-supplement",
+      "content_file": "items-and-loot.md",
+      "summary_text": "Treasure-by-CR tables, magic-item rarity tiers, equipment basics. Consult when generating loot, awarding treasure, or pricing items.",
+      "added": "2026-05-08"
+    },
+    {
+      "slug": "npc-generation",
+      "title": "NPC Generation & Roleplay",
+      "kind": "rules-supplement",
+      "content_file": "npc-generation.md",
+      "summary_text": "Quick-NPC framework (HP/AC/attack by CR), personality generation tables (demeanor, motivation, secret, quirk). Consult during /add-npc or /generate-npc.",
+      "added": "2026-05-08"
+    },
+    {
       "slug": "sane-magical-prices",
       "title": "Sane Magical Prices",
       "kind": "rules-supplement",
       "summary": "sane-magical-prices/_summary.md",
       "index": "sane-magical-prices/_index.md",
+      "added": "2026-05-08"
+    },
+    {
+      "slug": "spellcasting",
+      "title": "Spellcasting",
+      "kind": "rules-supplement",
+      "content_file": "spellcasting.md",
+      "summary_text": "Spell-slot tables by class/level, concentration rules, ritual casting, common spell-rules edge cases. Consult for any spellcasting rules question.",
       "added": "2026-05-08"
     }
   ]
