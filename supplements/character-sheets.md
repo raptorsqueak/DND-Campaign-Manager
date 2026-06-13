@@ -1,6 +1,6 @@
 # Character Sheets & Creation
 
-Reference: `dnd-5e-srd/markdown/01 races.md`, `dnd-5e-srd/markdown/02 classes.md`, `dnd-5e-srd/markdown/03 beyond1st.md`
+Reference: `srd-2024/character-origins.md`, `srd-2024/classes.md`, `srd-2024/character-creation.md`
 
 ## Character Creation Workflow
 

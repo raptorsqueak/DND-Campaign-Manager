@@ -1,6 +1,6 @@
 # Spellcasting
 
-Reference: `dnd-5e-srd/markdown/08 spellcasting.md`
+Reference: `srd-2024/spells.md`
 
 ## Spell Slot Tracking
 

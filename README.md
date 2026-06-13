@@ -88,6 +88,7 @@ This turns on **PLAY MODE**. While it's on, your freeform messages are read and 
 | `/plan-next-session` | Build a structured session plan tied to active quests, NPC appearances, loot, and DM-only secrets. Optionally write prep notes to your Obsidian vault. |
 | `/attack-chart` | Generate a pre-filled combat table with rolled HP and initiative for an encounter's enemies. |
 | `/add-content` | Intake a new supplement (book / rules / lore / backstory): copies the source, splits adventure books per chapter, generates a summary + index, and registers it in the manifest. |
+| `/party-options` | Create, update, or verify a character's non-SRD options (subclass, species, feats, spells) in the campaign-private `party-options` supplement. Add `--verify` to walk a verification pass over that character's entries. |
 | `/sync-obsidian` | Sync players, companions, NPCs, and session notes to your Obsidian vault. Never deletes existing vault content. |
 | `/audit` | Run a schema / coverage / consistency audit on the active campaign, including supplement-shape checks. Optionally apply a suggested fix. |
 | `/review-improvements` | Walk pending improvement candidates (efficiency, drift, memory hygiene, agent edits) proposed by the `improvement-curator` agent. Apply / skip / dismiss interactively. |
@@ -128,7 +129,7 @@ Each scope has a `_manifest.json` that is the source of truth. Files not listed 
 - **Flat** — small, single-topic content (≤300 lines). Stored as a single `.md` file; the manifest entry carries a one-line summary.
 - **Wrapped** — large reference content (adventure books). Stored in a `{slug}/` subdirectory with a summary, an index, and content files (adventure books are split per chapter). Consumers read the summary and index first, then drill into only the specific chapter / NPC / location they need.
 
-The **SRD** lives in `supplements/srd/`, already chunked by topic.
+The **SRD** ships in two editions, each chunked by topic: the **2024 SRD 5.2.1** in `supplements/srd-2024/` (the default, registered as the `srd-2024` wrapped supplement) and the **2014 SRD 5.1** in `supplements/srd-2014/` (the fallback for content 2024 doesn't cover).
 
 When sources conflict, priority is: global rules-supplements (house rules / homebrew) → campaign-specific supplements → SRD → DM guidance → built-in 5e knowledge. Claude always flags when a house rule overrides RAW.
 
@@ -145,7 +146,7 @@ dnd-campaign-manager/
 ├── .claude/
 │   ├── commands/                      # Slash command definitions (one .md per command)
 │   └── agents/                        # Specialist subagent definitions
-├── supplements/                       # Global supplements (manifest + content + srd/)
+├── supplements/                       # Global supplements (manifest + content + srd-2024/ + srd-2014/)
 │   └── _manifest.json
 └── campaigns/
     └── {campaign-slug}/
@@ -208,14 +209,26 @@ Every other command scans the conversation for the most recent such block to kno
 ## Credits
 
 - Inspired by [claude-dungeon-master](https://github.com/PinchOfData/claude-dungeon-master) by [PinchOfData](https://github.com/PinchOfData)
-- D&D 5e SRD content sourced from the [PinchOfData](https://github.com/PinchOfData/claude-dungeon-master) project
+- D&D 5e SRD content © Wizards of the Coast LLC, published via [D&D Beyond](https://www.dndbeyond.com/srd) and used under CC-BY-4.0 (see [License](#license))
 
 ---
 
 ## License
 
-**CLAUDE.md and all files in `.claude/commands/`:** MIT License — see [LICENSE](LICENSE)
+**Project files** (CLAUDE.md, README.md, and everything in `.claude/commands/` and `.claude/agents/`): MIT License — see [LICENSE](LICENSE)
 
-**D&D 5e SRD content** (`supplements/srd/`): Open Gaming License v1.0a — see [`supplements/srd/LICENSE`](supplements/srd/LICENSE)
+### D&D 5e SRD content
+
+Both System Reference Documents bundled here (`supplements/srd-2024/` and `supplements/srd-2014/`) are © Wizards of the Coast LLC, published by Wizards of the Coast and available through [D&D Beyond](https://www.dndbeyond.com/srd). This project uses both under the **Creative Commons Attribution 4.0 International License (CC-BY-4.0)**, available at <https://creativecommons.org/licenses/by/4.0/legalcode>.
+
+Wizards offers SRD 5.1 under either the Open Gaming License (OGL v1.0a) or Creative Commons; the text is identical and only the legal page differs. This project uses the **Creative Commons edition** of 5.1 for consistency with the CC-BY-4.0 SRD 5.2.1. The first page of each source PDF is the publisher's own legal/attribution statement.
+
+**2024 SRD 5.2.1** — source: [`SRD_CC_v5.2.1.pdf`](https://media.dndbeyond.com/compendium-images/srd/5.2/SRD_CC_v5.2.1.pdf). Required attribution:
+
+> This work includes material from the System Reference Document 5.2.1 ("SRD 5.2.1") by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode.
+
+**2014 SRD 5.1** — source: [`SRD_CC_v5.1.pdf`](https://media.dndbeyond.com/compendium-images/srd/5.1/SRD_CC_v5.1.pdf) (an [OGL edition](https://media.dndbeyond.com/compendium-images/srd/5.1/SRD-OGL_V5.1.pdf) of the same text is also published). Required attribution:
+
+> This work includes material taken from the System Reference Document 5.1 ("SRD 5.1") by Wizards of the Coast LLC and available at https://dnd.wizards.com/resources/systems-reference-document. The SRD 5.1 is licensed under the Creative Commons Attribution 4.0 International License available at https://creativecommons.org/licenses/by/4.0/legalcode.
 
 *Dungeons & Dragons, D&D, and related marks are trademarks of Wizards of the Coast. This project is unofficial fan content, not affiliated with or endorsed by Wizards of the Coast.*

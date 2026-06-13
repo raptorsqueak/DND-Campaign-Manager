@@ -34,7 +34,11 @@ Each scope has `_manifest.json` listing every supplement with its slug, title, k
 - **Flat** — small, single-topic content (≤300 lines, e.g. `combat-rules.md`, `combo-bag.md`). Stored directly in the supplements directory; the manifest entry includes an inline `summary_text`.
 - **Wrapped** — large reference content (e.g. adventure books). Stored in `{slug}/` subdirectory containing `_summary.md`, `_index.md`, and content files (chapters split per `# Chapter`/`# Level` heading for adventure books, or single `content.md` for other large content). The index lists NPCs, locations, quests, items with file paths so consumers can drill in selectively.
 
-**5e SRD** (`DND-Campaign-Manager/supplements/srd/`): `01 races.md` through `16 npcs.md`. Already topic-chunked; not currently wrapped (consumers select files by topic-keyword, see `/ask-dnd` Step 2).
+**5e SRD** — two editions, both topic-chunked:
+- **Default: 2024 SRD 5.2.1** (`DND-Campaign-Manager/supplements/srd-2024/`) — registered as a wrapped supplement (`srd-2024`); consult this first for any rules question. Files: `playing-the-game.md`, `classes.md`, `spells.md`, `feats.md`, `equipment.md`, `magic-items.md`, `monsters-A-Z.md`, `rules-glossary.md`, etc. (see `srd-2024/_index.md` for the topic→file routing table).
+- **Fallback: 2014 SRD 5.1** (`DND-Campaign-Manager/supplements/srd-2014/`): topic-named files (`races.md` … `npcs.md`), kebab-case to mirror `srd-2024/`. Use only for topics the 2024 SRD doesn't cover (e.g. gods, planes) or to contrast an edition difference.
+
+Consumers select files by topic-keyword (see `/ask-dnd` Step 2 and `rules-oracle`). When 2024 and 2014 differ, use 2024 and flag the edition difference.
 
 **DM-tracked book state** (`campaigns/{slug}/supplement-state/`): One markdown file per `kind: adventure-book` supplement (filename matches the slug). Tracks chapters completed, NPCs killed/recruited/modified, encounters skipped, free-form DM notes. Never overwrites the canonical content — it's a parallel record of how the book is being run in this campaign.
 
@@ -106,7 +110,7 @@ When supplements give conflicting answers, apply this priority order (higher ove
 
 1. Global flat `kind: rules-supplement` entries — house rules, homebrew (highest)
 2. Campaign-specific supplements (anything in `campaigns/{slug}/supplements/`)
-3. SRD rules as written
+3. SRD rules as written — **2024 SRD (`srd-2024/`) is the default; 2014 SRD (`srd-2014/`) is the fallback** for topics 2024 doesn't cover. When the two editions differ, use 2024 and flag the difference.
 4. DM instruction guides (the same flat rules-supplement entries — for guidance, not rule overrides)
 5. Built-in 5e knowledge (PHB content beyond SRD, etc.)
 
@@ -130,6 +134,7 @@ Always flag when a house rule overrides RAW, and flag gray areas explicitly.
 | `/sync-obsidian` | Sync players, companions, NPCs, and session notes to the Obsidian vault |
 | `/attack-chart` | Generate a pre-filled combat table with rolled HP and initiative for enemies |
 | `/add-content` | Intake a new supplement (book / rules / lore / backstory) — copies source, splits adventure books per chapter, generates summary + index, registers in manifest |
+| `/party-options` | Create / update / verify a PC's non-SRD options (subclass, species, feats, spells) in the campaign-private `party-options` supplement. `--verify` walks a verification pass over that character's entries. |
 | `/audit` | Run schema/coverage/consistency audit on the active campaign. Includes supplement-shape checks (manifest entry shape, manifest↔filesystem alignment). Optional scope arg or `fix N` to apply a fix. |
 | `/review-improvements` | Walk pending improvement candidates (efficiency, drift, memory hygiene, agent edits, etc.) produced by the `improvement-curator` agent. Defaults to **project scope** (`.claude/.meta/improvements.jsonl`). Pass `campaign` for campaign scope (requires ACTIVE CAMPAIGN). Pass `--refresh` to re-run the curator first. Apply / skip / dismiss interactively. |
 

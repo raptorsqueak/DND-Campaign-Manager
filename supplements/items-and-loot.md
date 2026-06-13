@@ -1,6 +1,6 @@
 # Items, Loot, and Treasure
 
-Reference: `dnd-5e-srd/markdown/04 equipment.md`, `dnd-5e-srd/markdown/10 magic items.md`
+Reference: `srd-2024/equipment.md`, `srd-2024/magic-items.md`
 
 ## Treasure Generation
 

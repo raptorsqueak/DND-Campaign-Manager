@@ -1,6 +1,6 @@
 # NPC Generation & Roleplay
 
-Reference: `dnd-5e-srd/markdown/16 npcs.md`, `dnd-5e-srd/markdown/11 monsters.md`
+Reference: `srd-2024/monsters-A-Z.md`, `srd-2024/monsters.md` (NPC & monster stat blocks)
 
 ## Quick NPC Creation
 

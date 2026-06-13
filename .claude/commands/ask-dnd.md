@@ -18,26 +18,34 @@ If the command was invoked with no question, ask: "What's your D&D question?"
 
 ## Step 2: Load Topic-Relevant SRD Files
 
-Determine the topic from the question, then load the most relevant SRD markdown file(s) from `DND-Campaign-Manager/supplements/srd/`:
+The **default SRD is the 2024 set** at `DND-Campaign-Manager/supplements/srd-2024/`. The **2014 set** at `DND-Campaign-Manager/supplements/srd-2014/` is the **fallback** — consult it only when 2024 doesn't cover the topic (see the fallback rows below), or to confirm/contrast an edition difference.
 
-| Topic Keywords | Files to Load |
+Determine the topic from the question, then load the most relevant 2024 SRD file(s):
+
+| Topic Keywords | Files to Load (2024) |
 |---|---|
-| race, racial, subrace, heritage | `01 races.md` |
-| class, subclass, archetype, feature, level up | `02 classes.md`, `03 beyond1st.md` |
-| equipment, weapon, armor, shield, tool, cost | `04 equipment.md` |
-| feat | `05 feats.md` |
-| skill, check, ability score, saving throw, proficiency | `06 mechanics.md` |
-| combat, attack, action, bonus action, reaction, initiative, grapple, shove, opportunity attack | `07 combat.md`, `12 conditions.md` |
-| condition, poisoned, frightened, restrained, stunned, incapacitated | `12 conditions.md` |
-| spell, spellcasting, slot, concentration, ritual, cantrip | `08 spellcasting.md` |
-| dungeon master, encounter, CR, challenge rating, rest, downtime, XP | `09 running.md` |
-| magic item, attunement, rarity, identification | `10 magic items.md` |
-| monster, creature, stat block, legendary, lair | `11 monsters.md`, `15 creatures.md` |
-| NPC, humanoid stat block | `16 npcs.md` |
-| god, deity, religion, domain | `13 gods.md` |
-| plane, planar, outer plane, inner plane, astral | `14 planes.md` |
+| ability, check, skill, saving throw, proficiency, D20 test, action, bonus action, reaction, advantage, initiative | `playing-the-game.md` |
+| combat, attack, grapple, shove, opportunity attack, cover | `playing-the-game.md`, `rules-glossary.md` |
+| condition, poisoned, frightened, restrained, stunned, incapacitated, prone, grappled (+ any rules term) | `rules-glossary.md` |
+| race, species, lineage, background, origin | `character-origins.md` |
+| character creation, level up, advancement, multiclass, starting level | `character-creation.md` |
+| class, subclass, archetype, feature | `classes.md`, `character-creation.md` |
+| equipment, weapon, armor, shield, tool, cost, weapon mastery | `equipment.md` |
+| feat, ASI, ability score improvement | `feats.md` |
+| spell, spellcasting, slot, concentration, ritual, cantrip, components | `spells.md` |
+| dungeon master, encounter, CR, challenge rating, rest, downtime, XP, travel, environment, curse | `gameplay-toolbox.md` |
+| magic item, attunement, rarity, identification | `magic-items.md` |
+| monster, creature, stat block, legendary, lair, NPC, humanoid stat block | `monsters.md`, `monsters-A-Z.md` |
+| beast, animal, mount, wild shape form | `animals.md` |
 
-If the question is broad or doesn't match a specific topic, load `06 mechanics.md` and `07 combat.md` as defaults.
+**2014 fallback rows** — these topics are thin or absent in the 2024 SRD; load from `srd-2014/` instead:
+
+| Topic Keywords | Files to Load (2014 fallback) |
+|---|---|
+| god, deity, religion, pantheon, domain | `srd-2014/gods.md` |
+| plane, planar, outer plane, inner plane, astral, ethereal | `srd-2014/planes.md` |
+
+If the question is broad or doesn't match a specific topic, load `playing-the-game.md` as the default. If a loaded 2024 file lacks the specific answer, load the corresponding `srd-2014/` file (mapping by the same topic) before falling back to built-in knowledge, and flag any edition difference in your answer.
 
 ---
 
