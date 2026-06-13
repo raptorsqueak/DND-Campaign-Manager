@@ -36,10 +36,12 @@ What would you like to update?
   6. Spell slots & spells — update remaining slots or spell list
   7. Backstory / personality — edit narrative fields
   8. Session notes — add notes from a recent session
-  9. Free edit — describe what to change in plain language
+  9. Free edit — describe what to change in plain language  (default)
 
 (You can also list multiple numbers to do several at once, e.g. "1 3 4")
 ```
+
+**Default: Option 9 (Free edit).** If the user describes a change in plain language without picking a number — or just says "9" with no further input — treat it as Option 9 and parse the described change directly. Only run the structured options (1–8) when the user explicitly selects those numbers.
 
 Wait for the user's selection, then handle each chosen option as described below. If multiple options are selected, handle them in order.
 

@@ -55,6 +55,22 @@
       "content_file": "spellcasting.md",
       "summary_text": "Spell-slot tables by class/level, concentration rules, ritual casting, common spell-rules edge cases. Consult for any spellcasting rules question.",
       "added": "2026-05-08"
+    },
+    {
+      "slug": "srd-2024",
+      "title": "D&D 5e SRD 5.2.1 (2024)",
+      "kind": "rules-supplement",
+      "summary": "srd-2024/_summary.md",
+      "index": "srd-2024/_index.md",
+      "added": "2026-06-12"
+    },
+    {
+      "slug": "srd-2014",
+      "title": "D&D 5e SRD 5.1 (2014) — fallback",
+      "kind": "rules-supplement",
+      "summary": "srd-2014/_summary.md",
+      "index": "srd-2014/_index.md",
+      "added": "2026-06-12"
     }
   ]
 }

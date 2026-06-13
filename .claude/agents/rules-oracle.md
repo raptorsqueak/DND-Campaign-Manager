@@ -21,26 +21,27 @@ This agent is dispatched by the orchestrator when a freeform utterance is classi
 
 ## Step 1 — Classify the question's topic
 
-Map keywords to SRD files (same table as `/ask-dnd`):
+The **default SRD is the 2024 set** at `supplements/srd-2024/`. The **2014 set** at `supplements/srd-2014/` is the **fallback** — use it only when 2024 doesn't cover the topic (the last two rows), or to confirm/contrast an edition difference. Map keywords to 2024 SRD files (same table as `/ask-dnd`):
 
-| Topic Keywords | Files to Load |
+| Topic Keywords | Files to Load (2024) |
 |---|---|
-| race, racial, subrace, heritage | `01 races.md` |
-| class, subclass, archetype, feature, level up | `02 classes.md`, `03 beyond1st.md` |
-| equipment, weapon, armor, shield, tool, cost | `04 equipment.md` |
-| feat | `05 feats.md` |
-| skill, check, ability, saving throw, proficiency | `06 mechanics.md` |
-| combat, attack, action, bonus action, reaction, initiative, grapple, shove, opportunity | `07 combat.md`, `12 conditions.md` |
-| condition (poisoned, frightened, restrained, stunned, etc.) | `12 conditions.md` |
-| spell, spellcasting, slot, concentration, ritual, cantrip | `08 spellcasting.md` |
-| DM, encounter, CR, rest, downtime, XP | `09 running.md` |
-| magic item, attunement, rarity | `10 magic items.md` |
-| monster, creature, stat block, legendary, lair | `11 monsters.md`, `15 creatures.md` |
-| NPC stat block | `16 npcs.md` |
-| god, deity, religion, domain | `13 gods.md` |
-| plane, planar | `14 planes.md` |
+| ability, check, skill, saving throw, proficiency, D20 test, action, bonus action, reaction, advantage, initiative | `srd-2024/playing-the-game.md` |
+| combat, attack, grapple, shove, opportunity attack, cover | `srd-2024/playing-the-game.md`, `srd-2024/rules-glossary.md` |
+| condition (poisoned, frightened, restrained, stunned, prone, etc.) + any rules term | `srd-2024/rules-glossary.md` |
+| race, species, lineage, background, origin | `srd-2024/character-origins.md` |
+| character creation, level up, advancement, multiclass | `srd-2024/character-creation.md` |
+| class, subclass, archetype, feature | `srd-2024/classes.md`, `srd-2024/character-creation.md` |
+| equipment, weapon, armor, shield, tool, cost, weapon mastery | `srd-2024/equipment.md` |
+| feat, ASI, ability score improvement | `srd-2024/feats.md` |
+| spell, spellcasting, slot, concentration, ritual, cantrip | `srd-2024/spells.md` |
+| DM, encounter, CR, rest, downtime, XP, travel, environment | `srd-2024/gameplay-toolbox.md` |
+| magic item, attunement, rarity | `srd-2024/magic-items.md` |
+| monster, creature, stat block, legendary, lair, NPC stat block | `srd-2024/monsters.md`, `srd-2024/monsters-A-Z.md` |
+| beast, animal, mount, wild shape form | `srd-2024/animals.md` |
+| god, deity, religion, domain *(2014 fallback)* | `srd-2014/gods.md` |
+| plane, planar *(2014 fallback)* | `srd-2014/planes.md` |
 
-If broad or ambiguous, default to `06 mechanics.md` + `07 combat.md`.
+If broad or ambiguous, default to `srd-2024/playing-the-game.md`. If a 2024 file lacks the specific answer, load the matching `srd-2014/` file before falling back to built-in knowledge, and flag any edition difference.
 
 ---
 
@@ -99,7 +100,7 @@ When a house rule overrides RAW, **explicitly flag it** in the answer.
 Format:
 
 1. **Direct answer first** — the rule, the number, the yes/no.
-2. **Citation** — "Per SRD `07 combat.md`…", "Your house rule in `supplements/foo.md`…", "Per PHB Wizard subclass…".
+2. **Citation** — "Per SRD `srd-2024/playing-the-game.md`…", "Your house rule in `supplements/foo.md`…", "Per PHB Wizard subclass…". Cite the actual file you loaded (2024 by default, `srd-2014/…` when you fell back).
 3. **Edge cases / gray areas** — flag if RAW is ambiguous and a common ruling exists. Use phrasing like "RAW: X. Common ruling: Y."
 4. **PC-specific application** — if the question references a specific PC, ground the answer in their actual stats from the file.
 5. **House rule override** — if a supplement overrides RAW, say so explicitly.
@@ -117,7 +118,7 @@ Mantle of Inspiration grants temp HP equal to (Bardic Inspiration die roll + you
 
 For Lyra (Glamour Bard, lvl 9, CHA 20, BI d8): up to 5 creatures, each gets 1d8+5 temp HP.
 
-Source: PHB College of Glamour, level 3 feature. SRD does not include subclass features beyond level 2 generally — this is PHB content.
+Source: PHB College of Glamour, level 3 feature. The SRD includes only a limited set of subclasses — College of Glamour isn't among them, so this is PHB content.
 ```
 
 ---

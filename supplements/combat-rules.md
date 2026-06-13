@@ -1,6 +1,6 @@
 # Combat Rules
 
-Reference: `dnd-5e-srd/markdown/07 combat.md`, `dnd-5e-srd/markdown/12 conditions.md`
+Reference: `srd-2024/playing-the-game.md` (combat), `srd-2024/rules-glossary.md` (conditions)
 
 ## Initiative & Turn Order
 
