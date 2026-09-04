@@ -58,7 +58,7 @@ If the utterance introduces a creature/companion that is **not** in any existing
 
 When the user answers, the orchestrator will re-invoke this agent with the answer in `utterance`. On re-invocation:
 - **yes** → propose `operation: create-file` with a stub companion file (see Step 5).
-- **no** → propose an `append` to the owner's `## Pets` section.
+- **no** → propose an `append-to-section` against the owner's `## Pets` section.
 
 ---
 
@@ -87,10 +87,10 @@ Determine the **target section** for the fact. If the section doesn't exist in t
 
 Then determine the **edit operation**:
 
-- **append** — adding a new line/bullet inside an existing section (most common)
-- **replace** — changing an existing value (e.g. HP `45/67` → `52/67`)
+- **append-to-section** — adding a new line/bullet inside an existing section (most common)
+- **replace-line** — changing an existing value (e.g. HP `45/67` → `52/67`, AC `—` → `15`)
 - **insert-section** — adding a section that didn't previously exist
-- **set-field** — filling in a blank value (e.g. AC was `—`, now `15`)
+- **replace-section** — rewriting a whole section body (rare; prefer the narrower ops)
 - **create-file** — creating a new player or companion file (companion files share the PC schema)
 
 ---
@@ -130,7 +130,9 @@ When in doubt, classify HIGH.
 
 ## Step 5 — Build the proposal
 
-Produce exact `old_string` / `new_string` byte-precise edits the orchestrator can hand directly to its Edit tool. Include enough surrounding context in `old_string` to be unique within the file.
+**Address the content; never reproduce it.** A proposal names the heading or the line prefix to
+change — it does not carry existing file bytes. `bin/apply-proposal.py` resolves the address
+against the file and performs the edit. Full spec: `docs/proposal-contract.md`.
 
 Schema for output (return this as a single JSON code block at the end of your response):
 
@@ -139,12 +141,15 @@ Schema for output (return this as a single JSON code block at the end of your re
   "proposals": [
     {
       "file": "campaigns/{slug}/players/{name}.md",
-      "operation": "append|replace|insert-section|set-field",
-      "old_string": "exact bytes from the current file",
-      "new_string": "exact replacement bytes",
+      "operation": "append-to-section|replace-line|insert-section|replace-section|create-file",
+      "target": {
+        "section": "## Pets",
+        "match": "- **HP**:",
+        "after_section": "## Combat Stats"
+      },
+      "content": "the new line(s), section body, or whole file",
       "stake_level": "low|high",
       "confidence": 0.0,
-      "section": "## Pets",
       "summary": "one-line human-readable description for the confirmation prompt",
       "rationale": "why this player and this section"
     }
@@ -159,11 +164,25 @@ Schema for output (return this as a single JSON code block at the end of your re
 }
 ```
 
+Which `target` keys each operation needs:
+
+| Operation | `target` keys | `content` |
+|---|---|---|
+| `append-to-section` | `section` | the line(s) to add at the end of that section |
+| `replace-line` | `match` (line prefix), plus `section` to scope it | the replacement line |
+| `insert-section` | `section` (the **new** heading, with `##`) + `after_section` | the new section's body |
+| `replace-section` | `section` | the section's entire new body |
+| `create-file` | — | the whole file |
+
 Rules:
-- `old_string` must match the file exactly, including whitespace. Read the file first; do not synthesize from memory.
-- For `append` operations, include the section heading and the last existing line in `old_string`, then add the new line in `new_string`.
-- For `insert-section`, place the new section in canonical schema order.
-- Always update `**Last Updated**: {date}` at the top of the file as part of the same proposal — read `campaign.json` for today's date or use the current date from the orchestrator's context.
+- Still read the file first — you need to know which section exists and what the line looks like.
+  You just don't have to transcribe it.
+- `target.match` is a **prefix** of the line's stripped text (`- **HP**:`), not the whole line, and
+  must match exactly one line. Scope it with `section` when a prefix like `- **Name**:` recurs.
+- `target.section` matching ignores case and `#` marks, but include the marks anyway for clarity.
+- For `insert-section`, set `after_section` so the new section lands in canonical schema order.
+- Always emit a second proposal bumping the date: `replace-line` with `target.match` of
+  `**Last Updated**:` — read `campaign.json` for today's date or use the orchestrator's.
 - Multiple proposals are fine if a single utterance hits multiple sections of one file (e.g. "Lyra took 12 damage and gained 50gp" → two proposals against `lyra.md`).
 
 ---
@@ -238,12 +257,11 @@ The orchestrator uses this signal to dispatch to a different agent.
 {
   "proposals": [{
     "file": "campaigns/example-campaign/players/lyra.md",
-    "operation": "replace",
-    "old_string": "- **HP**: — / 67",
-    "new_string": "- **HP**: 59 / 67",
+    "operation": "replace-line",
+    "target": { "section": "## Combat Stats", "match": "- **HP**:" },
+    "content": "- **HP**: 59 / 67",
     "stake_level": "low",
     "confidence": 0.9,
-    "section": "## Combat Stats",
     "summary": "Lyra HP 67 → 59 (took 8 damage)",
     "rationale": "Only bard in party. Current HP unknown; assumed full per agent policy."
   }]
@@ -270,12 +288,11 @@ Note: when current HP is blank or `—`, assume max before applying the change. 
 {
   "proposals": [{
     "file": "campaigns/example-campaign/players/lyra.md",
-    "operation": "replace",
-    "old_string": "- **Class**: Bard (College of Lore) — Level 9",
-    "new_string": "- **Class**: Bard (College of Lore) — Level 10",
+    "operation": "replace-line",
+    "target": { "section": "## Basic Info", "match": "- **Class**:" },
+    "content": "- **Class**: Bard (College of Lore) — Level 10",
     "stake_level": "high",
     "confidence": 0.95,
-    "section": "## Basic Info",
     "summary": "Lyra level 9 → 10 (Bard)",
     "rationale": "Level changes are high-stakes; will trigger HP/spell-slot/feature recalculation. Recommend running /update-player → Level Up after applying."
   }]
@@ -306,18 +323,16 @@ After the user replies "yes", the orchestrator re-invokes with the answer; the a
   "proposals": [{
     "file": "campaigns/example-campaign/players/ash.md",
     "operation": "create-file",
-    "old_string": "",
-    "new_string": "# Ash\n\n**Companion of**: Mira\n**Type**: Spirit wolf\n**Last Updated**: 2026-05-02\n\n## Basic Info\n- **Race/Type**: Spirit wolf\n- **Class**: (TBD — fill via /update-player)\n- **Alignment**:\n\n## Ability Scores\n| Stat | Score | Modifier |\n|------|-------|----------|\n| STR  |       |          |\n| DEX  |       |          |\n| CON  |       |          |\n| INT  |       |          |\n| WIS  |       |          |\n| CHA  |       |          |\n\n## Combat Stats\n- **AC**:\n- **HP**: /\n- **Speed**:\n- **Initiative**:\n\n## Features & Traits\n\n## Equipment\n\n## Notes\nNew companion — stats to be filled in. Created from utterance: \"Mira's spirit wolf Ash showed up — he can fight alongside her\"\n",
+    "content": "# Ash\n\n**Companion of**: Mira\n**Type**: Spirit wolf\n**Last Updated**: 2026-05-02\n\n## Basic Info\n- **Race/Type**: Spirit wolf\n- **Class**: (TBD — fill via /update-player)\n- **Alignment**:\n\n## Ability Scores\n| Stat | Score | Modifier |\n|------|-------|----------|\n| STR  |       |          |\n| DEX  |       |          |\n| CON  |       |          |\n| INT  |       |          |\n| WIS  |       |          |\n| CHA  |       |          |\n\n## Combat Stats\n- **AC**:\n- **HP**: /\n- **Speed**:\n- **Initiative**:\n\n## Features & Traits\n\n## Equipment\n\n## Notes\nNew companion — stats to be filled in. Created from utterance: \"Mira's spirit wolf Ash showed up — he can fight alongside her\"\n",
     "stake_level": "high",
     "confidence": 1.0,
-    "section": "(new file)",
     "summary": "Create players/ash.md (Mira's combat companion, stub for /update-player to fill)",
     "rationale": "User confirmed full companion file. Stub follows player schema; stats blank for /update-player."
   }]
 }
 ```
 
-Plus a parallel proposal to add `**Companion**: Ash — see ash.md` to Mira's `## Companion` section (low-stake append).
+Plus a parallel proposal appending `**Companion**: Ash — see ash.md` to Mira's `## Companion` section (`append-to-section`, low stake).
 
 ---
 

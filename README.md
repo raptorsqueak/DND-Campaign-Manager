@@ -145,6 +145,10 @@ The repo ships with the system files; campaign folders are created for you by `/
 dnd-campaign-manager/
 ├── CLAUDE.md                          # Project context, routing protocol, write policy
 ├── README.md
+├── conventions/                       # Behavioral rules for the assistant (loaded every session)
+├── docs/                              # Contracts and plans for working on the tool itself
+├── bin/
+│   └── apply-proposal.py              # Deterministic applier for agent-proposed edits
 ├── .claude/
 │   ├── commands/                      # Slash command definitions (one .md per command)
 │   └── agents/                        # Specialist subagent definitions
@@ -157,10 +161,22 @@ dnd-campaign-manager/
         ├── players/                   # Player character & companion sheets
         ├── npcs/                      # NPC records
         ├── sessions/                  # Session-prep notes from /plan-next-session
-        └── supplements/               # Campaign-specific supplements (+ _manifest.json)
+        ├── supplements/               # Campaign-specific supplements (+ _manifest.json)
+        └── conventions.md             # Optional — how your table plays (see below)
 ```
 
 The commands create additional working directories under a campaign as needed (e.g. for audit, routing, and book-progress state). You don't create those by hand.
+
+### Conventions
+
+`conventions/` holds the behavioral rules the assistant follows — how terse to be during live
+play, what never goes into a session plan, how to avoid duplicate NPC files. They are committed,
+so a fresh clone behaves the way a well-tuned one does instead of starting from scratch. Read
+`conventions/README.md` before adding to them.
+
+Anything specific to *your* table — which rules edition you use, your default session tone, who
+plays which character — goes in `campaigns/{slug}/conventions.md`, which is git-ignored.
+`/start-campaign` loads it automatically. That file is optional; the tool works without one.
 
 ### Adding supplements
 
@@ -196,7 +212,9 @@ Because the sync is otherwise append-only, values that *disagree* between the tw
 
 ## How It Works
 
-Every command is a Markdown file in `.claude/commands/` — a step-by-step instruction set Claude follows when you invoke the slash command. Every specialist agent is a Markdown file in `.claude/agents/`. Claude Code loads `CLAUDE.md` as persistent project context, so rules, supplements, and the routing protocol are always in scope.
+Every command is a Markdown file in `.claude/commands/` — a step-by-step instruction set Claude follows when you invoke the slash command. Every specialist agent is a Markdown file in `.claude/agents/`. Claude Code loads `CLAUDE.md` as persistent project context, so rules, supplements, conventions, and the routing protocol are always in scope.
+
+Agents never write to disk. They return a **proposal** — a JSON object naming a heading, a line prefix, or a JSON field to change — and `bin/apply-proposal.py` resolves that address against the file and makes the edit. Low-stakes changes apply immediately; high-stakes ones batch into one confirmation. See `docs/proposal-contract.md`.
 
 The **active campaign** is tracked by a block that `/start-campaign` emits at the end of its response:
 

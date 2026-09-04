@@ -38,6 +38,7 @@ Tell the user: "Let's plan Session #{current_session + 1}. I'll ask a few questi
 Ask **one at a time**, waiting for each response:
 
 1. **Tone**: "What's the overall feel you want for this session? (e.g., tense combat-heavy, roleplay-driven, exploration, a mix, funny, dark)"
+   — **Skip this question** if `campaigns/{campaign-slug}/conventions.md` states a default session tone. Use that, and say which tone you're using rather than asking.
 2. **Focus**: "Is there a particular player, backstory thread, or quest you want to spotlight this session?"
 3. **Location**: "Where does the session start, and do you have a sense of where it ends up?"
 4. **Time available**: "Roughly how long is your session? (e.g., 2 hours, 3–4 hours, full day)"

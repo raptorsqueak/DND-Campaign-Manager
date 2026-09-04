@@ -8,3 +8,7 @@ campaigns/*
 # Project runtime meta (improvement queue + friction notes) — may contain
 # absolute paths; keep out of the committed tree.
 .claude/.meta/
+
+# Python bytecode from bin/ scripts
+__pycache__/
+*.pyc

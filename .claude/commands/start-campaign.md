@@ -88,6 +88,22 @@ If no quests: show `Active Quests: (none recorded)`
 If no session log entries: show `Recent Session: (no sessions logged yet)`
 If no `obsidian_vault` field in campaign.json: show `Obsidian Vault: (none linked — add "obsidian_vault" to campaign.json to enable)`
 
+### Load table conventions
+
+Read `campaigns/{campaign-slug}/conventions.md` if it exists. It holds how *this* table plays —
+rules edition, default session tone, who plays which character, vault visibility — and applies for
+the rest of the session. Where it conflicts with the committed `conventions/` files, the campaign
+file wins; it is more specific.
+
+Do not print its contents in the briefing. Add one line to the briefing confirming it loaded:
+
+```
+Table Conventions: loaded ({n} sections)
+```
+
+If the file does not exist, show `Table Conventions: (none — see conventions/README.md to add)`
+and carry on. Do not offer to create one unless the user asks.
+
 End the response with this exact block (required — other commands depend on it):
 
 ```

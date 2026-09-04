@@ -20,7 +20,7 @@ You own `campaigns/{slug}/campaign.json`. Your job is to take a freeform fact an
 
 ## Step 1 — Load context
 
-Read `campaigns/{campaign_slug}/campaign.json` in full. You need its exact current bytes to construct a precise `old_string` for any replace.
+Read `campaigns/{campaign_slug}/campaign.json` in full — you need to know which fields exist, their current values, and their types. You do **not** need to transcribe them.
 
 ---
 
@@ -86,12 +86,24 @@ If the fact doesn't fit any field, return `no_action_reason`.
 
 ## Step 4 — Produce the proposal
 
-Because campaign.json is JSON, the `old_string` and `new_string` must be byte-precise — including whitespace, quoting, and trailing commas. Read the file first.
+**Address the field, never the bytes.** You name a field path and a value;
+`bin/apply-proposal.py` parses the JSON, sets the value, and re-serializes it. Quoting, commas,
+and indentation are not your problem — and campaign.json can no longer be corrupted by a
+mis-transcribed byte. Full spec: `docs/proposal-contract.md`.
 
-For `array-append` and `array-remove` operations, edit the JSON array literal directly using `replace`. Be careful with trailing commas:
+Three operations, all of which take `target.field` (a dot path) and a `value` (any JSON value —
+string, number, array element):
 
-- Append example: turn `[\n    "Quest A",\n    "Quest B"\n  ]` into `[\n    "Quest A",\n    "Quest B",\n    "Quest C"\n  ]`
-- Remove example: turn `[\n    "Quest A",\n    "Quest B"\n  ]` into `[\n    "Quest A"\n  ]` — note the dropped trailing comma after "Quest A".
+| Operation | Use for | Note |
+|---|---|---|
+| `set-field` | any scalar or whole-array replacement | `value` is the new value |
+| `array-append` | opening a quest, adding to any list | no-op if the element is already present |
+| `array-remove` | closing a quest, removing from a list | `value` matches exactly, or as a unique prefix |
+
+`array-remove` accepting a **unique prefix** matters in practice: quest strings are long
+(`"Recover the Stolen Blade — the heirloom sword..."`), and you can close one with
+`"Recover the Stolen Blade"` rather than reproducing the whole entry. If the prefix matches more
+than one, the applier refuses and says so.
 
 Output schema (same JSON contract as other agents):
 
@@ -100,12 +112,11 @@ Output schema (same JSON contract as other agents):
   "proposals": [
     {
       "file": "campaigns/{slug}/campaign.json",
-      "operation": "replace",
-      "old_string": "exact bytes from current file",
-      "new_string": "exact replacement bytes",
+      "operation": "set-field|array-append|array-remove",
+      "target": { "field": "current_location" },
+      "value": "Triboar (Chapter 3 of Storm King's Thunder)",
       "stake_level": "low|high",
       "confidence": 0.0,
-      "field": "current_location",
       "summary": "one-line description for confirmation prompt",
       "rationale": "why this field, why this value"
     }
@@ -115,7 +126,8 @@ Output schema (same JSON contract as other agents):
 }
 ```
 
-Use `field` instead of `section` since campaign.json doesn't have markdown sections.
+Note `value`, not `content` — JSON operations carry a typed value, so `"party_level": 10` is the
+number `10`, not the string `"10"`.
 
 ---
 
@@ -160,12 +172,11 @@ If the utterance is about a specific player, NPC, rules, or session content:
 {
   "proposals": [{
     "file": "campaigns/example-campaign/campaign.json",
-    "operation": "replace",
-    "old_string": "  \"current_location\": \"Silverymoon (Chapter 3 of Storm King's Thunder)\",",
-    "new_string": "  \"current_location\": \"Triboar (Chapter 3 of Storm King's Thunder)\",",
+    "operation": "set-field",
+    "target": { "field": "current_location" },
+    "value": "Triboar (Chapter 3 of Storm King's Thunder)",
     "stake_level": "low",
     "confidence": 0.9,
-    "field": "current_location",
     "summary": "Location: Silverymoon → Triboar",
     "rationale": "Travel between known SKT locations; chapter context preserved."
   }]
@@ -180,12 +191,11 @@ If the utterance is about a specific player, NPC, rules, or session content:
 {
   "proposals": [{
     "file": "campaigns/example-campaign/campaign.json",
-    "operation": "replace",
-    "old_string": "  \"active_quests\": [\n    \"Recover the Stolen Blade — the heirloom sword Dawnblade was taken by the thief Korin; track him to Eastgate\",\n    \"Return the Signet Ring — deliver the recovered ring to its owner in Highport\"\n  ],",
-    "new_string": "  \"active_quests\": [\n    \"Return the Signet Ring — deliver the recovered ring to its owner in Highport\"\n  ],",
+    "operation": "array-remove",
+    "target": { "field": "active_quests" },
+    "value": "Recover the Stolen Blade",
     "stake_level": "high",
     "confidence": 0.85,
-    "field": "active_quests",
     "summary": "Remove quest: Recover the Stolen Blade",
     "rationale": "Quest removal is high-stake (no undo). Confirm the quest is fully resolved and not just one step done."
   }]
@@ -208,6 +218,6 @@ Note: `party_level` changes when the **whole party** levels. If only one PC leve
 
 1. Never write to disk. Output proposals only.
 2. Never modify any file other than `campaign.json`. Refuse with route-suggestion.
-3. JSON must remain valid — preserve trailing-comma discipline of the existing file.
-4. For array operations, prefer the explicit replace pattern over surgical comma manipulation; safer.
+3. Never hand-serialize JSON. Use `set-field` / `array-append` / `array-remove` and let the applier write the file — that is what keeps it valid.
+4. One proposal per field. Two fields changing in one utterance is two proposals, not one merged blob.
 5. `created` field should never change.

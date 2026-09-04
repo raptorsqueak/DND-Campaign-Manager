@@ -116,16 +116,19 @@ Determine target section and operation:
 | Fact type | Section | Operation |
 |---|---|---|
 | New NPC introduction | (new file) | `create-file` |
-| Location change | `## Identity` → Location | `replace` or `set-field` |
-| Standing change (e.g. became hostile) | `## Relationship to Party` → Standing | `replace` |
-| New event with party | `## Relationship to Party` → History | `append` |
-| Personality detail | `## Personality` | `set-field` or `append` |
-| New secret revealed (DM) | `## Personality` → Secret OR `## DM Notes` | `append` |
-| Quirk / voice / mannerism | `## Personality` → Quirk | `set-field` or `append` |
-| Death / removal from world | `## DM Notes` + add `**Status**: Deceased ({date})` | `append` + `set-field` |
-| Faction change | `## Identity` → Affiliation | `replace` |
-| What they can do for the party | `## What They Can Offer` | `append` or `replace` |
-| Combat stats (CR/HP/AC) | `## Combat Stats` | `set-field` or `replace` |
+| Location change | `## Identity` → Location | `replace-line` |
+| Standing change (e.g. became hostile) | `## Relationship to Party` → Standing | `replace-line` |
+| New event with party | `## Relationship to Party` → History | `append-to-section` |
+| Personality detail | `## Personality` | `replace-line` or `append-to-section` |
+| New secret revealed (DM) | `## Personality` → Secret OR `## DM Notes` | `replace-line` or `append-to-section` |
+| Quirk / voice / mannerism | `## Personality` → Quirk | `replace-line` |
+| Death / removal from world | `## DM Notes` append + `**Status**: Deceased ({date})` | `append-to-section` + `replace-line` |
+| Faction change | `## Identity` → Affiliation | `replace-line` |
+| What they can do for the party | `## What They Can Offer` | `append-to-section` |
+| Combat stats (CR/HP/AC) | `## Combat Stats` | `replace-line` |
+
+A field that is currently blank (`- **Secret**:`) is still a `replace-line` — the line exists, you
+are filling it. Use `append-to-section` only when adding a genuinely new line.
 
 ---
 
@@ -155,17 +158,24 @@ When in doubt, classify HIGH.
 
 Same JSON contract as player-data:
 
+**Address the content; never reproduce it.** A proposal names the heading or line prefix to change
+— it never carries existing file bytes. `bin/apply-proposal.py` resolves the address and performs
+the edit. Full spec, including which `target` keys each operation needs:
+`docs/proposal-contract.md`.
+
 ```json
 {
   "proposals": [
     {
       "file": "campaigns/{slug}/npcs/{name}.md",
-      "operation": "append|replace|insert-section|set-field|create-file",
-      "old_string": "exact bytes from current file (empty for create-file)",
-      "new_string": "exact replacement bytes",
+      "operation": "append-to-section|replace-line|insert-section|replace-section|create-file",
+      "target": {
+        "section": "## Relationship to Party",
+        "match": "- **Standing**:"
+      },
+      "content": "the new line(s), section body, or whole file",
       "stake_level": "low|high",
       "confidence": 0.0,
-      "section": "## Relationship to Party",
       "summary": "one-line description for confirmation prompt",
       "rationale": "why this NPC and this section"
     }
@@ -214,22 +224,20 @@ If the utterance is about a player, campaign state, rules, or session events, re
 {
   "proposals": [{
     "file": "campaigns/example-campaign/npcs/vexa-duvyr.md",
-    "operation": "replace",
-    "old_string": "- **Standing**: Unfriendly",
-    "new_string": "- **Standing**: Hostile",
+    "operation": "replace-line",
+    "target": { "section": "## Relationship to Party", "match": "- **Standing**:" },
+    "content": "- **Standing**: Hostile",
     "stake_level": "high",
     "confidence": 0.9,
-    "section": "## Relationship to Party",
     "summary": "Vexa Duvyr: Unfriendly → Hostile",
     "rationale": "Two-step shift on a Major NPC linked to Mira's framing arc — confirm before applying."
   }, {
     "file": "campaigns/example-campaign/npcs/vexa-duvyr.md",
-    "operation": "append",
-    "old_string": "(last line of ## Relationship to Party → History)",
-    "new_string": "...same line\n- {date}: Open confrontation in Silverymoon — now openly hostile.",
+    "operation": "append-to-section",
+    "target": { "section": "## Relationship to Party" },
+    "content": "- {date}: Open confrontation in Silverymoon — now openly hostile.",
     "stake_level": "low",
     "confidence": 0.9,
-    "section": "## Relationship to Party",
     "summary": "Append history entry for Silverymoon confrontation",
     "rationale": "History appends are low-stake; pairs with the standing change above."
   }]
@@ -245,11 +253,9 @@ If the utterance is about a player, campaign state, rules, or session events, re
   "proposals": [{
     "file": "campaigns/example-campaign/npcs/garrick-hale.md",
     "operation": "create-file",
-    "old_string": "",
-    "new_string": "# Garrick Hale\n\n**Type**: Minor NPC\n**Source**: Manual\n**Campaign**: Example Campaign\n**Created**: {today}\n\n## Identity\n- **Role**: Tavern keeper, the Brass Lantern\n- **Location**: Triboar\n- **Affiliation**: None\n\n## Appearance\n(not described)\n\n## Personality\n- **Demeanor**: Gruff but helpful\n- **Motivation**: \n- **Secret**: \n- **Quirk**: \n\n## Relationship to Party\n- **Standing**: Indifferent\n- **History**: Met in Triboar at the Brass Lantern.\n\n## What They Can Offer\nLodging, food, local rumors.\n\n## Combat Stats\n*(not combat-relevant)*\n\n## DM Notes\n(none)\n",
+    "content": "# Garrick Hale\n\n**Type**: Minor NPC\n**Source**: Manual\n**Campaign**: Example Campaign\n**Created**: {today}\n\n## Identity\n- **Role**: Tavern keeper, the Brass Lantern\n- **Location**: Triboar\n- **Affiliation**: None\n\n## Appearance\n(not described)\n\n## Personality\n- **Demeanor**: Gruff but helpful\n- **Motivation**: \n- **Secret**: \n- **Quirk**: \n\n## Relationship to Party\n- **Standing**: Indifferent\n- **History**: Met in Triboar at the Brass Lantern.\n\n## What They Can Offer\nLodging, food, local rumors.\n\n## Combat Stats\n*(not combat-relevant)*\n\n## DM Notes\n(none)\n",
     "stake_level": "high",
     "confidence": 0.95,
-    "section": "(new file)",
     "summary": "Create npcs/garrick-hale.md (Triboar tavern keeper, Indifferent)",
     "rationale": "Named NPC + role + location all present. High-stake because file creation is irreversible without explicit deletion."
   }]

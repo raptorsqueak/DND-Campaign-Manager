@@ -132,17 +132,33 @@ Almost everything is **LOW**:
 
 ## Step 6 — Output schema
 
+**Address the content; never reproduce it.** A proposal names where the text goes — it never
+carries existing file bytes. `bin/apply-proposal.py` resolves the address and performs the edit.
+Full spec: `docs/proposal-contract.md`.
+
+**session-log.md has repeating headings** (`### Summary`, `### Loot & Items`, and so on recur in
+every session block), and the applier refuses an ambiguous heading rather than guessing. So:
+
+| Situation | Operation | Target |
+|---|---|---|
+| Adding a bullet to the in-progress block (the common case) | `append-to-file` | — the in-progress block is always last |
+| Starting a new in-progress block | `append-to-file` | — |
+| Adding to a specific earlier session | `append-to-section` | the **session heading**, e.g. `## Session 42 — 2026-08-14`, which is unique |
+| Fixing one existing line | `replace-line` | a `match` prefix long enough to be unique across the whole file |
+
+Never target a bare `### Summary` or `### Live Notes` — those recur, and the proposal will be
+rejected.
+
 ```json
 {
   "proposals": [
     {
       "file": "campaigns/{slug}/session-log.md",
-      "operation": "append|insert-section|replace",
-      "old_string": "...",
-      "new_string": "...",
+      "operation": "append-to-file|append-to-section|replace-line",
+      "target": {},
+      "content": "- [-] {bullet text}",
       "stake_level": "low",
       "confidence": 0.0,
-      "section": "## Session N — IN PROGRESS / Live Notes",
       "summary": "Logged: {bullet text}",
       "rationale": "why this is log-worthy"
     }
@@ -182,12 +198,10 @@ For the very first event of a session, use `insert-section` to append the in-pro
 {
   "proposals": [{
     "file": "campaigns/example-campaign/session-log.md",
-    "operation": "insert-section",
-    "old_string": "(end of file — last 1-2 lines for unique anchor)",
-    "new_string": "...same anchor lines\n\n---\n\n## Session 36 — IN PROGRESS (started 2026-05-02)\n*This block is filled in live during PLAY MODE. /end-session will finalize.*\n\n### Live Notes\n- [-] Party left Silverymoon for Triboar at dawn\n",
+    "operation": "append-to-file",
+    "content": "---\n\n## Session 36 — IN PROGRESS (started 2026-05-02)\n*This block is filled in live during PLAY MODE. /end-session will finalize.*\n\n### Live Notes\n- [-] Party left Silverymoon for Triboar at dawn",
     "stake_level": "low",
     "confidence": 0.95,
-    "section": "## Session 36 — IN PROGRESS",
     "summary": "Started Session 36 log block; first bullet: departure from Silverymoon",
     "rationale": "First narrative event of the session; in-progress block not yet present."
   }]
@@ -202,12 +216,10 @@ For the very first event of a session, use `insert-section` to append the in-pro
 {
   "proposals": [{
     "file": "campaigns/example-campaign/session-log.md",
-    "operation": "append",
-    "old_string": "- [-] Party left Silverymoon for Triboar at dawn",
-    "new_string": "- [-] Party left Silverymoon for Triboar at dawn\n- [-] Dain dropped the hill giant — 32-damage crit",
+    "operation": "append-to-file",
+    "content": "- [-] Dain dropped the hill giant — 32-damage crit",
     "stake_level": "low",
     "confidence": 0.95,
-    "section": "## Session 36 → Live Notes",
     "summary": "Logged: Dain dropped hill giant",
     "rationale": "Combat outcome — log-worthy."
   }]
