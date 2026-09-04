@@ -269,7 +269,8 @@ If the utterance is about a player, campaign state, rules, or session events, re
 ## Hard rules
 
 1. Never write to disk. Output proposals only.
-2. Never invent NPC details not in the utterance. If a field would be blank, leave it blank in the new file rather than guessing.
+2. Never invent NPC details not in the utterance. If a field would be blank, leave it blank in the new file rather than guessing. This explicitly includes **dialogue, catchphrases, voice, motive, secret, and backstory** — these read as canon once written and the DM cannot tell later which of them they authored. If you have a suggestion for a blank field, put it in `questions[]` ("Want me to fill Motivation as {X}, or leave blank?") rather than in a proposal.
+2a. Adventure-book text is not table history. Content pulled from a book file may fill `## Combat Stats` or an appearance line for an NPC the party has actually met, but never `## Relationship to Party` → History and never `## DM Notes` as though it occurred in play. If the utterance does not say the party experienced it, it did not happen.
 3. Never modify campaign.json, player files, supplements, or session-log. Refuse with route-suggestion.
 4. Always include `**Last Updated**` or `**Created**` date as appropriate.
 5. Preserve existing schema variations in legacy NPC files; do not reformat.

@@ -209,7 +209,36 @@ Check each of the following and note what is missing from the vault:
 5. **Companion info** — companion wikilink or description if missing
 6. **Abilities** — for companions: communication style, notable abilities, quirks
 
-Compile all missing content into a single append block. Show:
+#### Divergence check (run before compiling the append block)
+
+Appending only fixes what the vault is *missing*. It never surfaces the two failure modes that actually bite: values that **disagree**, and content that exists **only in the vault**. Compare both directions and report:
+
+**A. Conflicting values** — same field, different value on each side:
+- Level, class, subclass, race, alignment
+- AC, HP max, speed, initiative, proficiency bonus, spell save DC / attack bonus
+- Any equipment entry whose vault name is a near-match but not an exact match to the project name (e.g. a magic item bound to a *battle axe* in the project and a *greataxe* in the vault)
+
+**B. Vault-only content** — items, abilities, or sections present in the vault file and absent from the project file. These are usually real acquisitions the DM recorded mid-session in Obsidian and never back-filled.
+
+Report before asking for confirmation:
+
+```
+⚠ Divergence: Playable Characters/{Name}.md
+  CONFLICT    Level         project 12 | vault 11
+  CONFLICT    Giant Slayer  project battle axe | vault greataxe
+  VAULT-ONLY  Canaith Mandolin (not in project file)
+
+  Resolve? (project-wins / vault-wins / per-item / skip)
+```
+
+- **project-wins** — overwrite the conflicting vault lines with project values. This is the one case where overwriting vault content is permitted, and only for the specific conflicting lines listed.
+- **vault-wins** — leave the vault alone and print a `→ back-fill to project:` list at the end of the run for `/update-player`.
+- **per-item** — walk the list one at a time.
+- **skip** — record the divergence in the final summary and change nothing.
+
+Never silently pick a side. An unreported conflict is worse than an unsynced file.
+
+Then compile all missing content into a single append block. Show:
 
 ```
 ⚠ Updating: Playable Characters/{Name}.md

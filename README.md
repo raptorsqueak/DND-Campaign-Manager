@@ -16,14 +16,14 @@ Inspired by [claude-dungeon-master](https://github.com/PinchOfData/claude-dungeo
 
 - **Player character sheets** — create and update full 5e sheets with derived stats, skills, spell slots, and equipment
 - **NPC management** — manually add NPCs or AI-generate contextual ones from your campaign state
-- **Live play mode** — start a session and just narrate; specialist agents route facts to the right files (players, NPCs, campaign state, session log) and ask before high-stake writes
+- **Live play mode** — start a session and just narrate; specialist agents route facts to the right files (players, NPCs, campaign state, session log) and ask before high-stake writes. Agents record only what you actually said — improvised colour and unreached book content are offered back as questions rather than written in as canon
 - **Session logging** — record what happened, update quest state, and keep a running campaign journal
-- **Session planning** — generate structured session plans tied to active quests, backstory threads, and NPC relationships
+- **Session planning** — generate structured session plans tied to active quests, backstory threads, and NPC relationships. Plans come in two shapes: a three-act arc for sessions with momentum, or a non-linear menu of location blocks with time costs for sessions the party navigates at its own discretion
 - **Rules Q&A** — ask 5e rules questions answered against the SRD, your house rules, and campaign supplements
 - **Supplement intake** — register adventure books, rules supplements, and lore; large books are split per chapter and summarized/indexed for cheap, selective loading
 - **Combat prep** — generate a pre-filled attack chart with rolled HP and initiative for an encounter
 - **Audit & self-improvement** — run integrity audits on campaign data, and review automatically-proposed improvements to the system itself
-- **Obsidian sync** — push players, companions, NPCs, and session notes into your Obsidian vault without ever deleting existing content
+- **Obsidian sync** — push players, companions, NPCs, and session notes into your Obsidian vault without deleting existing content, and surface any values that have drifted apart between the two copies
 
 ---
 
@@ -67,7 +67,9 @@ This walks you through creating a new campaign or resuming an existing one, and 
 /start-session
 ```
 
-This turns on **PLAY MODE**. While it's on, your freeform messages are read and routed to specialist agents automatically. Run `/end-session` to turn it off and finalize the session log.
+This turns on **PLAY MODE**. While it's on, your freeform messages are read and routed to specialist agents automatically.
+
+When you're done, `/end-session` turns PLAY MODE off immediately — it asks nothing, so you can close the laptop and leave. Your live notes stay in the session log as an in-progress block. Formalize them whenever you like, days later if you want, with `/session-log`.
 
 ---
 
@@ -77,7 +79,7 @@ This turns on **PLAY MODE**. While it's on, your freeform messages are read and 
 |---|---|
 | `/start-campaign` | Load a campaign — create a new one or resume an existing one. Sets the active campaign for all other commands. Does **not** turn on PLAY MODE. |
 | `/start-session` | Begin a live play session — turns on PLAY MODE so freeform messages route automatically. |
-| `/end-session` | End a live play session — offers to finalize the in-progress session log, then turns off PLAY MODE. |
+| `/end-session` | End a live play session — turns off PLAY MODE immediately, with no prompts. Live notes are preserved as an in-progress block for later. |
 | `/add-player` | Add a player character with a full 5e sheet — ability scores, skills, saves, spells, equipment, and backstory. |
 | `/update-player` | Update any field on a character sheet: level up, fill missing stats, add equipment, adjust HP, edit spells, or free-form edit. |
 | `/add-npc` | Manually define an NPC with role, personality, secrets, combat stats, and DM notes. |
@@ -85,11 +87,11 @@ This turns on **PLAY MODE**. While it's on, your freeform messages are read and 
 | `/campaign-info` | View or update campaign metadata: location, quests, party level, Obsidian vault path, and custom notes. |
 | `/ask-dnd` | Rules Q&A answered against the SRD, your house rules, and campaign supplements. Flags when house rules override RAW. (In PLAY MODE, rules questions auto-route to the `rules-oracle` agent.) |
 | `/session-log` | Record session notes, update quest state, and append to the campaign journal. |
-| `/plan-next-session` | Build a structured session plan tied to active quests, NPC appearances, loot, and DM-only secrets. Optionally write prep notes to your Obsidian vault. |
+| `/plan-next-session` | Build a structured session plan tied to active quests, NPC appearances, loot, and DM-only secrets. Picks a three-act or non-linear menu shape based on whether the party is following a sequence or choosing between places. Optionally write prep notes to your Obsidian vault. |
 | `/attack-chart` | Generate a pre-filled combat table with rolled HP and initiative for an encounter's enemies. |
 | `/add-content` | Intake a new supplement (book / rules / lore / backstory): copies the source, splits adventure books per chapter, generates a summary + index, and registers it in the manifest. |
 | `/party-options` | Create, update, or verify a character's non-SRD options (subclass, species, feats, spells) in the campaign-private `party-options` supplement. Add `--verify` to walk a verification pass over that character's entries. |
-| `/sync-obsidian` | Sync players, companions, NPCs, and session notes to your Obsidian vault. Never deletes existing vault content. |
+| `/sync-obsidian` | Sync players, companions, NPCs, and session notes to your Obsidian vault. Never deletes vault content, and reports any field that disagrees between the project and the vault before changing anything. |
 | `/audit` | Run a schema / coverage / consistency audit on the active campaign, including supplement-shape checks. Optionally apply a suggested fix. |
 | `/review-improvements` | Walk pending improvement candidates (efficiency, drift, memory hygiene, agent edits) proposed by the `improvement-curator` agent. Apply / skip / dismiss interactively. |
 
@@ -187,6 +189,8 @@ Once your vault exists, add its path to your campaign:
 Select **Edit metadata** and set the `obsidian_vault` field to the absolute path of your vault (e.g. `/Users/yourname/Documents/MyVault`).
 
 `/sync-obsidian` never deletes existing vault content. If you organize NPCs into location subfolders under `NPCs/`, it files new NPCs into the matching subfolder based on their recorded location.
+
+Because the sync is otherwise append-only, values that *disagree* between the two copies would never surface on their own — a vault sheet stuck at an older level is not "missing" anything. The sync therefore compares both directions and reports conflicts and vault-only content before doing anything, and asks you which side wins. Choosing the project side is the only case where it overwrites vault text, and only the specific conflicting lines it just listed.
 
 ---
 

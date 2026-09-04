@@ -74,8 +74,27 @@ Not every routed utterance belongs in the session log. Use these heuristics:
 - Rules questions or clarifications
 - Out-of-character chatter
 - Schema/admin actions ("I'm going to add a player")
+- **Content you or the orchestrator improvised** — NPC dialogue, motives, names, or descriptive color that the DM did not state
+- **Content read out of the adventure book that the table never reached** — boxed text, treasure entries, encounter rosters, room contents for areas the party has not searched or entered
 
-If borderline, lean toward logging. Better to over-record than under-record — `/session-log` will edit the final form anyway.
+### Provenance guard (applies to every bullet)
+
+The session log is a record of what happened **at the table**, not what could happen. Before proposing any bullet, classify each fact in it:
+
+| Provenance | Source | Action |
+|---|---|---|
+| **DM-stated** | Present in the `utterance` (or a prior utterance passed as `context`) | Log it |
+| **Player-stated** | Present in the utterance as a player action/decision | Log it |
+| **Book content** | Comes from an adventure-book file, not the utterance | Log only if the utterance says the party encountered/found/defeated it |
+| **Assistant-improvised** | You or the orchestrator invented it (dialogue, motive, name, sensory detail) | **Do not log.** Log only the DM-stated skeleton |
+
+Rules:
+
+- A bullet must be reconstructible from the utterance alone. If you cannot point at the words that establish a fact, that fact does not go in the bullet.
+- **Loot specifically**: only log an item as recovered when the utterance says the party took/found/claimed it. "The room contains X" per the book is not "the party looted X."
+- If the DM-stated core is log-worthy but you are carrying improvised color alongside it, log the core and put the improvised material in `questions[]` as an offer: "Do you want {invented detail} recorded as canon, or kept as an optional beat?"
+
+If borderline on *whether an event matters*, lean toward logging. If borderline on *whether the DM actually said it*, leave it out — an unlogged real event is recoverable at `/end-session`; an invented one becomes campaign history.
 
 ---
 
