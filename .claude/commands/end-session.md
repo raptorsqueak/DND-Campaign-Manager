@@ -1,105 +1,64 @@
-# /end-session — Finish a Live Play Session (PLAY MODE off)
+# /end-session — Stop Play, Immediately
 
-Turns off PLAY MODE and offers to formalize the in-progress session log into a proper session entry.
+**This command is a hard stop. The DM is packing up to leave.**
+
+Do the minimum: turn PLAY MODE off and get out of the way. **Ask nothing. Offer nothing. Formalize nothing.**
 
 ---
 
-## Step 0: Check Active Campaign
+## Rules
 
-Scan the conversation for the most recent `ACTIVE CAMPAIGN:` block. If none is found, stop and say:
+- **No questions.** Do not ask whether to formalize, sync, or save anything.
+- **No menus.** Do not present numbered options.
+- **No formalization.** Do not rewrite the IN PROGRESS block, do not touch `campaign.json`, do not touch the vault, do not run `/session-log`.
+- **No summary of the session.** A one-line pointer is enough.
+- Keep the whole response to a few lines. The laptop is closing.
 
-> "No active campaign. Run /start-campaign first."
+The IN PROGRESS block stays exactly as it is. It is the record, and it will be formalized in a later sitting via `/session-log`.
+
+---
+
+## Step 1: Check Active Campaign
+
+Scan the conversation for the most recent `ACTIVE CAMPAIGN:` block. If none is found, say "No active campaign." and stop.
 
 Extract `{campaign-slug}`.
 
----
-
-## Step 1: Check Play Mode Status
-
-Check if `DND-Campaign-Manager/campaigns/{campaign-slug}/.meta/play-mode.flag` exists.
-
-- If **not present**: PLAY MODE was already off. Display:
-
-  > "PLAY MODE is not currently active for {campaign-slug}. Nothing to end."
-
-  Then emit the PLAY MODE OFF sentinel (Step 5) and stop.
-
-- If **present**: read its contents to know the session start time, and continue.
-
----
-
-## Step 2: Read the In-Progress Session Block
-
-Read the last 80 lines of `DND-Campaign-Manager/campaigns/{campaign-slug}/session-log.md`.
-
-Find a block matching:
-
-```markdown
-## Session {n} — IN PROGRESS (started {date})
-```
-
-If no in-progress block is found, the session had no logged events. Skip to Step 4 (PLAY MODE off, no formalization needed).
-
-If found, display its `### Live Notes` bullets back to the user:
-
-```
-=== Session {n} live notes captured ===
-- {bullet 1}
-- {bullet 2}
-- ...
-
-({count} events logged over {duration})
-```
-
----
-
-## Step 3: Offer to Formalize
-
-Ask:
-
-```
-What would you like to do?
-  1. Run /session-log now to formalize this session (recommended — converts live notes
-     into a proper Session N entry, updates campaign.json, optionally syncs to Obsidian)
-  2. Just turn off PLAY MODE — keep the IN PROGRESS block as-is, formalize later
-  3. Cancel — leave PLAY MODE on
-```
-
-Wait for user input.
-
-- **1** → run `/session-log` (the existing slash command). It will read the in-progress block, walk through the recap interview using the captured bullets as a starting point, replace the IN PROGRESS block with a proper `## Session {n} — {date}` entry, and update campaign.json. After /session-log completes, return here and continue to Step 4.
-- **2** → continue to Step 4 immediately.
-- **3** → stop. PLAY MODE remains on. Do not delete the flag.
-
----
-
-## Step 4: Delete the Play Mode Flag
+## Step 2: Delete the Play Mode Flag
 
 ```bash
-rm -f DND-Campaign-Manager/campaigns/{campaign-slug}/.meta/play-mode.flag
+rm -f campaigns/{campaign-slug}/.meta/play-mode.flag
 ```
 
-The hook stops injecting routing reminders the moment the flag is gone.
+If the flag did not exist, PLAY MODE was already off — say so in the one-line summary and continue to Step 3 anyway.
 
----
+## Step 3: Respond
 
-## Step 5: Emit the PLAY MODE OFF Sentinel
-
-End the response with this exact block:
-
-```
-PLAY MODE: off
-Campaign: {campaign-slug}
-Ended: {today's date / time}
-```
-
-Display a brief summary:
+Output exactly this shape and nothing more:
 
 ```
 === PLAY MODE OFF ===
-Session ended after {duration if available}.
-{If formalized: "Session N saved to session-log.md and campaign.json updated."}
-{If not formalized: "Live notes preserved as IN PROGRESS block. Run /session-log later to finalize."}
+Session {n} live notes preserved in session-log.md as an IN PROGRESS block.
 
-Routing is off. Slash commands still work normally. Run /start-session to resume.
+To wrap up whenever you're ready (no rush — days later is fine):
+  /session-log        formalize the session entry + update campaign.json
+  /sync-obsidian      push players, NPCs, and notes to the vault
+  /plan-next-session  build the next session
+
+PLAY MODE: off
+Campaign: {campaign-slug}
+Ended: {today's date}
 ```
+
+`{n}` comes from the IN PROGRESS block heading if one exists; otherwise omit that line entirely.
+
+---
+
+## Note for the deferred wrap-up
+
+When the DM later runs `/session-log` to formalize a session that ended this way, remember the live notes may be **days old** and the conversation may have been compacted. Read the IN PROGRESS block as the source of truth rather than relying on conversation memory, and check whether these were captured during play:
+
+- Homebrew or DM rulings made at the table (register them in the campaign's `party-options` or an appropriate supplement, not only on a character sheet)
+- NPC renames or status changes that need propagating across `npcs/`, the vault, and `supplement-state/`
+- Loot that was described but never confirmed as taken
+- `supplement-state/{book}.md` progress for the chapter that was played

@@ -59,6 +59,51 @@ The plan should:
 - **Respect the time constraint** — scale encounters and scenes to fit
 - **Flag any DM secrets** that could be teased or advanced this session (clearly marked)
 
+**Pick a plan shape first.** The three-act format below assumes the session has a driving sequence — the party is being carried from beat to beat. That is not always true. Choose:
+
+- **Non-linear menu format** when the party sets its own agenda: a hub/city/settlement with several destinations, a dungeon or region explored at the party's discretion, a downtime or shopping session, a travel leg with optional sites, or any session where the DM's Step 2 answers describe *places* rather than a *sequence*. Use this by default whenever the party's next move is genuinely open.
+- **Three-act format** when the session has committed momentum: a scheduled confrontation, a pursuit, an ambush the party walks into, a boss fight, a session opening mid-combat, or a scripted set piece.
+
+If ambiguous, ask: "Is this session a sequence the party moves through, or a set of places they choose between?" **Do not default to three acts.**
+
+### Non-linear menu format
+
+```
+=== SESSION #{n} PLAN ===
+Campaign: {name}
+Tone / Focus / Location / Estimated Length
+Time Budget: ~{n} location blocks fit in {time}
+
+## Opening Scene
+{Where the party is and what puts the choice in front of them}
+
+## Location Blocks
+Each block is self-contained and playable in any order. Give every block a time cost so the DM can budget live.
+
+### {Location name} — ~{n} min
+**Who's here:** {NPCs on file}
+**What's available:** {service, information, encounter, item}
+**Hook:** {why the party would come here}
+**If they push further:** {the deeper thing behind the obvious thing}
+
+(repeat — aim for ~1.5x as many blocks as the time budget fits, so the choices are real)
+
+## Standing Threads
+{What progresses regardless of which blocks they pick — a timer, a pursuer, a rumor}
+
+## If the party splits
+{How to run parallel blocks without stalling the table}
+
+## Backstory & Character Threads
+## NPC Appearances
+## Potential Loot / Rewards
+## DM Eyes Only
+{Include: what happens if the party never visits a given block}
+===
+```
+
+### Three-act format
+
 Display the plan in this format:
 
 ```

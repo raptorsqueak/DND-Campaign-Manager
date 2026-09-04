@@ -49,7 +49,9 @@ Flag if any of these are blank, `—`, missing, or contain `(TBD)` / `(to confir
 - HP current (a `/` with blank-or-dash on the left side flags as "current HP unknown" — informational, not error)
 - For spellcasters: Spell Save DC, Spell Attack Bonus, Spell Slots row, at least one cantrip
 - Backstory section non-empty
-- Personality (Trait / Ideal / Bond / Flaw) — flag if all four are blank
+- Personality (Trait / Ideal / Bond / Flaw) — flag if all four are blank — see the centralized-backstory exemption below
+
+**Centralized-backstory exemption.** Some campaigns keep PC backstory and personality in a campaign supplement (a `kind: character-backstory` entry in `campaigns/{slug}/supplements/_manifest.json`) rather than in each `players/*.md` file. Before flagging Backstory or Personality above, read that supplement once and note which PCs it covers by name. For a covered PC, report `ℹ {name} — backstory/personality centralized in {supplement-slug}` in the informational section instead of raising a coverage gap. Only flag a covered PC if the supplement has no entry for them. This is a deliberate campaign layout, not drift — do not propose moving the content into the player files.
 
 ### Companion files (also in `players/`)
 
