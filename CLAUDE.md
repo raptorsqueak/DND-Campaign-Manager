@@ -20,6 +20,26 @@ This repository is shared/committed to GitHub. **Never place campaign-private da
 - Campaign-private working state stays in git-ignored locations: campaign data under `campaigns/*`, project runtime meta under `.claude/.meta/`. Do not un-ignore these.
 - Before finishing any edit to a committed file, scan your own output for the PRIVATE items above.
 
+## Conventions (behavioral rules — load every session)
+
+Accumulated DM corrections that shape how this assistant behaves. They are part of the system
+prompt, not reference material, and they are committed so that a clone of this repo behaves the
+way the original does.
+
+@conventions/play-mode.md
+@conventions/session-prep.md
+@conventions/campaign-data.md
+@conventions/authoring.md
+
+If the harness running this corpus does not expand `@` imports, **read those four files at session
+start.** `conventions/README.md` explains the directory and how to add to it.
+
+**Campaign-level conventions** — how one particular table plays (rules edition, default session
+tone, who plays which character, whether the vault is DM-only) — live in
+`campaigns/{slug}/conventions.md`, which is git-ignored and may hold real names. `/start-campaign`
+reads it when the campaign is loaded; it applies for the rest of the session. Where the two
+conflict, the campaign file wins — it is more specific.
+
 ## Reference Files (Read-Only — Never Write Here)
 
 Supplements supplement your built-in 5e knowledge. They're discovered and loaded via a **manifest-first** pattern (see "Loading supplements" below), not by raw directory scans.
@@ -62,16 +82,13 @@ Campaigns may have an associated Obsidian vault stored in `campaign.json → obs
 - Commands that write session notes or plans **may also write to the vault** when the user confirms
 - The vault's session notes live at `{obsidian_vault}/Sessions/` and follow the naming pattern `YYYY-MM-DD Title.md`
 - The vault's `{obsidian_vault}/Campaign/` folder holds campaign story / planning content (e.g. book-by-chapter outlines like `Campaign/Storm King/Chapter 3 - The Savage Frontier.md`), separate from session notes
-- Vault session notes use this template (matching existing Obsidian notes in that directory):
+- Vault session notes use this template — **two sections only**, no `# After` (see `conventions/session-prep.md`):
   ```markdown
   # Before
   {DM prep bullet points}
 
   # During
   {filled in during play}
-
-  # After
-  {filled in after the session}
   ```
 - The vault's NPC files live at `{obsidian_vault}/NPCs/` organized by location subdirectory
 - **Never overwrite existing vault content without user confirmation**
@@ -160,13 +177,12 @@ Every write-proposing agent (`player-data`, `npc-data`, `campaign-state`, `sessi
 {
   "proposals": [
     {
-      "file": "...",
-      "operation": "append|replace|insert-section|set-field|create-file|array-append|array-remove",
-      "old_string": "exact bytes from current file",
-      "new_string": "exact replacement bytes",
+      "file": "campaigns/{slug}/players/{name}.md",
+      "operation": "append-to-section",
+      "target": { "section": "## Pets" },
+      "content": "- **Whiskers** — Tressym, rides on her shoulder.",
       "stake_level": "low|high",
       "confidence": 0.0,
-      "section": "## Section Name (or `field` for JSON)",
       "summary": "one-line description for confirmation prompt",
       "rationale": "why this file, why this section"
     }
@@ -178,12 +194,25 @@ Every write-proposing agent (`player-data`, `npc-data`, `campaign-state`, `sessi
 }
 ```
 
+**Proposals address content, never bytes.** A proposal names a heading (`target.section`), a line
+prefix (`target.match`), or a JSON field (`target.field`) — it never reproduces existing file
+content. `bin/apply-proposal.py` resolves the address against the file and performs the edit.
+
+Operations — markdown: `append-to-section`, `replace-section`, `insert-section`, `replace-line`,
+`append-to-file`, `create-file`. JSON: `set-field`, `array-append`, `array-remove` (these carry
+`value` instead of `content`).
+
+**`docs/proposal-contract.md` is the full spec** — addressing rules, per-operation fields, and the
+failure modes. Read it before hand-writing a proposal.
+
 The orchestrator (main session) parses these and applies them per the **write policy**:
 
-- **`stake_level: low`** → auto-apply via Edit tool, summarize as a one-liner
+- **`stake_level: low`** → auto-apply by piping the proposal to `bin/apply-proposal.py`, summarize as a one-liner
 - **`stake_level: high`** → batch into an end-of-turn confirmation prompt: `Apply all N? (y / n / review)`
 - **`questions[]`** → ask the user, then re-invoke the agent with the answer in `utterance`
 - **`no_action_reason`** → if it suggests another agent, dispatch to that agent
+- **applier exits non-zero** → the addressing failed (missing section, ambiguous prefix). Do NOT
+  fall back to hand-editing. Re-invoke the agent with the error text, or ask the user.
 
 ### Per-campaign meta directory
 
@@ -238,7 +267,7 @@ If an agent returned `no_action_reason` suggesting a different agent, dispatch t
 
 For each proposal, apply by `stake_level`:
 
-- **`stake_level: low`** — apply immediately using the `Edit` tool (`old_string` / `new_string` map directly). Summarize each as a one-liner in your reply, e.g.:
+- **`stake_level: low`** — apply immediately: pipe the proposal to `bin/apply-proposal.py`. Summarize each as a one-liner in your reply, e.g.:
   > ✓ lyra.md → Pets: added Whiskers
 
 - **`stake_level: high`** — collect into a single batched confirmation prompt at the end of the turn:
@@ -250,9 +279,9 @@ For each proposal, apply by `stake_level`:
   └─
   Apply all? (y / n / review)
   ```
-  - **y** → apply all in sequence with Edit/Write
+  - **y** → apply all in sequence via `bin/apply-proposal.py` (pass the whole batch with `--input`)
   - **n** → discard all, log as agent self-rejected (`outcome: agent-self-rejected`) to `.meta/rejections.jsonl`
-  - **review** → walk one at a time: `[1/3] story.md: Bard L9 → L10. apply / skip / edit / quit`
+  - **review** → walk one at a time, using `--dry-run` to show the diff: `[1/3] lyra.md: Bard L9 → L10. apply / skip / edit / quit`
 
 If `questions[]` is non-empty for any proposal, ask those first — answers may change which proposals are valid. After the user answers, re-invoke the agent with the answer in `utterance`.
 
@@ -277,7 +306,7 @@ The agent re-reads the file and returns a verification block:
 }
 ```
 
-- If `matches_intent: false` OR `anomalies` is non-empty: surface to the user as `⚠ Heads up: {summary}` and offer `revert / accept / investigate`. On `revert`, re-apply the inverse Edit (swap `old_string` and `new_string` from the original proposal).
+- If `matches_intent: false` OR `anomalies` is non-empty: surface to the user as `⚠ Heads up: {summary}` and offer `revert / accept / investigate`. On `revert`, propose the opposite change against the same target and apply it — reverting is re-addressing, not an inverse byte swap.
 - If clean: silently proceed. Don't add noise.
 
 **Skip self-review for low-stake writes** — the cost (additional agent invocation per write) isn't worth it for low-risk changes. If a low-stake write later turns out wrong, the rejection-capture path (Step G) handles it.
