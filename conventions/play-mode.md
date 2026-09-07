@@ -69,11 +69,13 @@ for a wrap-up.
 - Delete the play-mode flag, print a few lines, stop. No questions, no menus, no summary, no
   `campaign.json` or vault writes.
 - Leave the IN PROGRESS block in `session-log.md` untouched — it is the record.
-- Formalization happens in a **separate, later sitting**, often days later, via `/session-log`,
-  `/sync-obsidian`, and `/plan-next-session`. The DM will ask for it directly.
+- Formalization happens in a **separate, later sitting**, often days later, via **`/review-session`**
+  — the command built for exactly this, which orchestrates the rest. The DM will ask for it directly.
 
-In that later sitting, treat the IN PROGRESS block as the source of truth — the conversation may
-have been compacted and the notes may be days old. Sweep for what live play tends to leave
+In that later sitting, treat the transcript as the source of truth when a recording was made, and
+the IN PROGRESS block otherwise — the conversation may have been compacted and the notes may be
+days old. Where a transcript and a live note disagree, the transcript wins, and say so: a live note
+that recorded a ruling backwards will otherwise be trusted later. Sweep for what live play leaves
 half-recorded: homebrew rulings that need registering in a supplement rather than only on a sheet,
 NPC renames needing propagation, loot described but never confirmed taken, and chapter progress in
 `supplement-state/{book}.md`.

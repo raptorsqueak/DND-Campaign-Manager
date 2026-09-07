@@ -103,3 +103,39 @@ afterwards.
 
 **Why:** the command spec covers players, NPCs, sessions, and items, but not book state — and the
 DM keeps book progress visible at the table through the vault.
+
+---
+
+## Don't track small consumables
+
+Charges, uses, and expendables on a character's own gear — wand charges, potion counts, arrows,
+spell slots, a once-per-day item's daily use — do not belong in campaign files. **The players
+track their own.**
+
+- Record what a character *gains*: a new item, a new ability, a permanent change.
+- Record what is *spent for good*: an item destroyed, consumed, or given away.
+- Do not record a charge ticking down, and do not offer to.
+
+**Why:** *"Small things like a wand's charges don't need tracked, otherwise we'd be tracking too
+many things — the players can keep track of their spent items."* Every tracked field is a field
+that goes stale, and a sheet full of stale counters is worse than one that never claimed to know.
+The DM needs the campaign files for what the *table* has to remember collectively, not for what
+one player already has written on their own sheet.
+
+---
+
+## Loot is not taken until the DM says it is
+
+A described item is not an acquired item. Something can be found, examined, named, and played
+with at length and still be left exactly where it lay.
+
+- Write items into a character's `## Equipment` only when the DM states the character took it, or
+  the transcript shows them taking it.
+- When a companion claims something but has no way to carry it, the item goes on the sheet of the
+  player who actually carries it, with a note saying who claimed it.
+- If it is unclear whether something was picked up, log it under the session's loot with
+  **bearer unassigned** and ask — do not assign it to whoever touched it last.
+
+**Why:** a giant stuffed bear was written onto a companion's sheet because that companion had
+climbed inside it and the scene ran for several minutes. The party took a fistful of its stuffing
+and left the bear in the room.
