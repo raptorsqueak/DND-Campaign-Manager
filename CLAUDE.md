@@ -139,7 +139,8 @@ Always flag when a house rule overrides RAW, and flag gray areas explicitly.
 |---|---|
 | `/start-campaign` | Load a campaign — select existing or create new. Sets ACTIVE CAMPAIGN. Does NOT turn on PLAY MODE. |
 | `/start-session` | Begin a live play session — turns on PLAY MODE so freeform messages route automatically. |
-| `/end-session` | End a live play session — offers to finalize the in-progress session log, turns off PLAY MODE. |
+| `/end-session` | End a live play session — a hard stop. Turns off PLAY MODE and nothing else. |
+| `/review-session` | The wrap-up sitting, days later. Transcribes a recording if there is one, finalizes the session log, updates campaign + book state, syncs the vault, discards the audio. |
 | `/add-player` | Add a player character with full sheet |
 | `/update-player` | Update a player — level up, fill missing stats, equipment, HP, spells |
 | `/add-npc` | Manually define an NPC |

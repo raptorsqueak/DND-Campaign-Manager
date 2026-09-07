@@ -41,9 +41,7 @@ Output exactly this shape and nothing more:
 Session {n} live notes preserved in session-log.md as an IN PROGRESS block.
 
 To wrap up whenever you're ready (no rush — days later is fine):
-  /session-log        formalize the session entry + update campaign.json
-  /sync-obsidian      push players, NPCs, and notes to the vault
-  /plan-next-session  build the next session
+  /review-session     finalize the log, sync the vault, transcribe the recording
 
 PLAY MODE: off
 Campaign: {campaign-slug}
@@ -56,7 +54,8 @@ Ended: {today's date}
 
 ## Note for the deferred wrap-up
 
-When the DM later runs `/session-log` to formalize a session that ended this way, remember the live notes may be **days old** and the conversation may have been compacted. Read the IN PROGRESS block as the source of truth rather than relying on conversation memory, and check whether these were captured during play:
+The wrap-up belongs to **`/review-session`**, which is built for exactly this and runs days later.
+When finalizing a session that ended this way, remember the live notes may be **days old** and the conversation may have been compacted. Read the IN PROGRESS block as the source of truth rather than relying on conversation memory, and check whether these were captured during play:
 
 - Homebrew or DM rulings made at the table (register them in the campaign's `party-options` or an appropriate supplement, not only on a character sheet)
 - NPC renames or status changes that need propagating across `npcs/`, the vault, and `supplement-state/`

@@ -18,6 +18,7 @@ Inspired by [claude-dungeon-master](https://github.com/PinchOfData/claude-dungeo
 - **NPC management** — manually add NPCs or AI-generate contextual ones from your campaign state
 - **Live play mode** — start a session and just narrate; specialist agents route facts to the right files (players, NPCs, campaign state, session log) and ask before high-stake writes. Agents record only what you actually said — improvised colour and unreached book content are offered back as questions rather than written in as canon
 - **Session logging** — record what happened, update quest state, and keep a running campaign journal
+- **Session transcription** *(optional)* — record the table on a phone, and have the session log drafted from what was actually said instead of from the fragments you typed mid-play. Proper nouns are corrected against your own roster, and the recording is deleted once the log is written
 - **Session planning** — generate structured session plans tied to active quests, backstory threads, and NPC relationships. Plans come in two shapes: a three-act arc for sessions with momentum, or a non-linear menu of location blocks with time costs for sessions the party navigates at its own discretion
 - **Rules Q&A** — ask 5e rules questions answered against the SRD, your house rules, and campaign supplements
 - **Supplement intake** — register adventure books, rules supplements, and lore; large books are split per chapter and summarized/indexed for cheap, selective loading
@@ -31,8 +32,9 @@ Inspired by [claude-dungeon-master](https://github.com/PinchOfData/claude-dungeo
 
 - [Claude Code](https://claude.ai/code) — the CLI tool (requires a Claude subscription or Anthropic API key)
 - [Obsidian](https://obsidian.md) *(optional)* — for vault sync features
+- `ffmpeg`, `cmake`, and a C++ compiler *(optional)* — only for session transcription; run `bin/install-whisper.sh` once to build [whisper.cpp](https://github.com/ggml-org/whisper.cpp) and fetch a model
 
-No other dependencies. Everything runs through Claude Code slash commands.
+No Python packages to install. Everything else runs through Claude Code slash commands.
 
 ---
 
@@ -69,7 +71,22 @@ This walks you through creating a new campaign or resuming an existing one, and 
 
 This turns on **PLAY MODE**. While it's on, your freeform messages are read and routed to specialist agents automatically.
 
-When you're done, `/end-session` turns PLAY MODE off immediately — it asks nothing, so you can close the laptop and leave. Your live notes stay in the session log as an in-progress block. Formalize them whenever you like, days later if you want, with `/session-log`.
+When you're done, `/end-session` turns PLAY MODE off immediately — it asks nothing, so you can close the laptop and leave. Your live notes stay in the session log as an in-progress block.
+
+### 5. Review the session afterwards
+
+```
+/review-session
+```
+
+The wrap-up sitting, run whenever you like — days later is the normal case. It finalizes the session log, updates campaign and book state, syncs your vault, and transcribes a recording if you made one. The four commands form a cycle:
+
+| Command | When |
+|---|---|
+| `/plan-next-session` | days before, to build the plan |
+| `/start-session` | the night of, to open PLAY MODE |
+| `/end-session` | the night of, to stop and go home |
+| `/review-session` | days later, to finalize everything |
 
 ---
 
@@ -80,6 +97,7 @@ When you're done, `/end-session` turns PLAY MODE off immediately — it asks not
 | `/start-campaign` | Load a campaign — create a new one or resume an existing one. Sets the active campaign for all other commands. Does **not** turn on PLAY MODE. |
 | `/start-session` | Begin a live play session — turns on PLAY MODE so freeform messages route automatically. |
 | `/end-session` | End a live play session — turns off PLAY MODE immediately, with no prompts. Live notes are preserved as an in-progress block for later. |
+| `/review-session` | Finalize a session after the fact — transcribe a recording if there is one, write the session log, update campaign and book state, sync the vault, and discard the audio. |
 | `/add-player` | Add a player character with a full 5e sheet — ability scores, skills, saves, spells, equipment, and backstory. |
 | `/update-player` | Update any field on a character sheet: level up, fill missing stats, add equipment, adjust HP, edit spells, or free-form edit. |
 | `/add-npc` | Manually define an NPC with role, personality, secrets, combat stats, and DM notes. |
@@ -148,7 +166,11 @@ dnd-campaign-manager/
 ├── conventions/                       # Behavioral rules for the assistant (loaded every session)
 ├── docs/                              # Contracts and plans for working on the tool itself
 ├── bin/
-│   └── apply-proposal.py              # Deterministic applier for agent-proposed edits
+│   ├── apply-proposal.py              # Deterministic applier for agent-proposed edits
+│   ├── build-glossary.py              # Name glossary + roster for transcription
+│   ├── correct-names.py               # Fuzzy proper-noun repair on a transcript
+│   ├── install-whisper.sh             # One-time whisper.cpp + model install
+│   └── transcribe.sh                  # Recording → name-corrected transcript
 ├── .claude/
 │   ├── commands/                      # Slash command definitions (one .md per command)
 │   └── agents/                        # Specialist subagent definitions
@@ -181,6 +203,30 @@ plays which character — goes in `campaigns/{slug}/conventions.md`, which is gi
 ### Adding supplements
 
 Use `/add-content` to register house rules, homebrew, lore, or an adventure book. It chooses the flat or wrapped layout, generates summaries/indexes, and updates the manifest. Global content goes to `supplements/`; campaign-specific content goes to `campaigns/{slug}/supplements/`. Claude loads and applies these automatically and flags when they override RAW.
+
+---
+
+## Session Transcription (optional)
+
+Record the table however you like — a phone lying face-up in the middle works. Drop the file somewhere the repo can reach, then run `/review-session`, which handles the rest.
+
+One-time setup:
+
+```
+bin/install-whisper.sh
+```
+
+What happens on a review:
+
+1. The audio is normalized to 16 kHz mono.
+2. A **name glossary** is generated from your own `players/` and `npcs/` files — the short list of names currently in play biases the decoder, and the full roster drives a correction pass afterwards. This is what stops a transcript full of mangled character names.
+3. The transcript is written to `campaigns/{slug}/.transcript-working/`, and every name substitution is logged so a wrong correction is visible rather than silent.
+4. The session log is drafted from it, for you to review before anything replaces your live notes.
+5. **The transcript and the source audio are deleted** once the log is written — and only then. A failed run leaves both alone.
+
+Transcripts are not an archive. They are hours of unfiltered audio of real people talking, they exist only between transcription and log-writing, and nothing accumulates. If a log turns out to be missing something later, the source is gone; that is intended.
+
+Runtime is roughly 8 minutes per hour of audio on 8 CPU cores with no GPU.
 
 ---
 
